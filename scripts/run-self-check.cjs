@@ -11,9 +11,13 @@ function getArg(flag) {
 }
 
 async function main() {
-  const appDataRoot = process.env.APPDATA
-    ? path.join(process.env.APPDATA, "Token Chowhound")
-    : path.join(os.homedir(), "AppData", "Roaming", "Token Chowhound");
+  const appDataBase = process.env.APPDATA
+    ? process.env.APPDATA
+    : path.join(os.homedir(), "AppData", "Roaming");
+  const candidateRoots = ["Fries", "Token Chowhound", "ai-account-console"].map((dir) =>
+    path.join(appDataBase, dir),
+  );
+  const appDataRoot = candidateRoots.find((root) => require("fs").existsSync(root)) || candidateRoots[0];
 
   const stateFile = getArg("--state") || path.join(appDataRoot, "subscriptions.json");
   const snapshotsDir = getArg("--snapshots") || path.join(appDataRoot, "data", "snapshots");

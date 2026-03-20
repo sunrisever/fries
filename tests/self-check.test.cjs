@@ -6,7 +6,7 @@ const path = require("path");
 const { runSelfCheck } = require("../electron/self-check.cjs");
 
 async function withTempWorkspace(fn) {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "token-chowhound-test-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "fries-test-"));
   try {
     return await fn(root);
   } finally {

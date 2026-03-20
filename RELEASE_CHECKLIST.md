@@ -18,7 +18,7 @@
 
 ## 4. Validation
 - 运行该项目对应的最小可用验证，不要只改文档不测。
-- 对 Token Chowhound 仓库，默认至少执行一次 `npm run check`。
+- 对 Fries 仓库，默认至少执行一次 `npm run check`。
 - 如涉及本地运行时数据，额外执行一次 `npm run self-check`。
 - 发布前至少检查一次 `git status` 与 `git diff --stat`。
 - 如果新增了截图或示意图，逐张确认没有私人信息。

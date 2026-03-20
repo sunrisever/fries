@@ -1,9 +1,9 @@
 $ErrorActionPreference = "Stop"
 
 $taskbarDir = Join-Path $env:APPDATA "Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar"
-$exePath = "C:\Users\28033\Desktop\ai-account-console\release\win-unpacked\Token Chowhound.exe"
-$desktopShortcutPath = "C:\Users\28033\Desktop\Token Chowhound.lnk"
-$taskbarShortcutPath = Join-Path $taskbarDir "Token Chowhound.lnk"
+$exePath = "C:\Users\28033\Desktop\ai-account-console\release\win-unpacked\Fries.exe"
+$desktopShortcutPath = "C:\Users\28033\Desktop\Fries.lnk"
+$taskbarShortcutPath = Join-Path $taskbarDir "Fries.lnk"
 $legacyTaskbarShortcutPath = Join-Path $taskbarDir "AI Account Console.lnk"
 
 if (Test-Path $legacyTaskbarShortcutPath) {
@@ -21,7 +21,7 @@ function New-AppShortcut {
   $shortcut.TargetPath = $exePath
   $shortcut.WorkingDirectory = Split-Path $exePath
   $shortcut.IconLocation = "$exePath,0"
-  $shortcut.Description = "Token Chowhound"
+  $shortcut.Description = "Fries"
   $shortcut.Save()
 }
 

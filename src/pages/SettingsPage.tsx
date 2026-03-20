@@ -451,7 +451,7 @@ export default function SettingsPage({
         <div className="detail-grid">
           <article className="detail-card">
             <span>{uiText("产品名", "Product")}</span>
-            <strong>{`Token Chowhound / ${appChineseName}`}</strong>
+            <strong>{`Fries / ${appChineseName}`}</strong>
             <p>{uiText("面向多账号流量与订阅监控的桌面仪表盘。", "Desktop dashboard for multi-account quota and subscription ops.")}</p>
           </article>
           <article className="detail-card">

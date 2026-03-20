@@ -43,7 +43,7 @@ const TimelinePage = lazy(() => import("./pages/TimelinePage"));
 
 const STORAGE_KEY = "ai-account-console.dashboard.v1";
 const APP_VERSION = "0.3.0-beta";
-const APP_CHINESE_NAME = "大胃袋";
+const APP_CHINESE_NAME = "薯条";
 const DATA_YEAR_MIN = 2026;
 const DATA_YEAR_MAX = 2036;
 
@@ -2130,6 +2130,10 @@ function ensureCompleteState(state: DashboardState): DashboardState {
     profile: {
       ...seed.profile,
       ...migrated.profile,
+      title:
+        migrated.profile?.title && migrated.profile.title !== "Token Chowhound"
+          ? migrated.profile.title
+          : seed.profile.title,
       strategyNotes: Array.isArray(migrated.profile?.strategyNotes)
         ? migrated.profile.strategyNotes
         : seed.profile.strategyNotes,
@@ -3719,7 +3723,7 @@ function App() {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = "token-chowhound-snapshot.json";
+    anchor.download = "fries-snapshot.json";
     anchor.click();
     URL.revokeObjectURL(url);
   }

@@ -1,8 +1,8 @@
 [English](./README.md) | 简体中文
 
-# 大胃袋
+# 薯条
 
-大胃袋（Token Chowhound）是一个本地桌面仪表盘，专门用来管理多账号流量额度、订阅到期、快照缓存和 token 统计。它特别适合有多个 OpenAI Team / Business 坑位、或者同时观察 Claude、Gemini、Kimi、Qwen 等 provider 的用户。
+薯条（Fries）是一个本地桌面仪表盘，专门用来管理多账号流量额度、订阅到期、快照缓存和 token 统计。它特别适合有多个 OpenAI Team / Business 坑位、或者同时观察 Claude、Gemini、Kimi、Qwen 等 provider 的用户。
 
 ## 项目定位
 
@@ -50,10 +50,10 @@ tests/                         基于 Node 的冒烟测试
 
 运行时数据不放在项目目录里，而是放在系统 AppData 下：
 
-- 状态文件：`%APPDATA%\\Token Chowhound\\subscriptions.json`
-- 快照目录：`%APPDATA%\\Token Chowhound\\data\\snapshots`
-- 导入目录：`%APPDATA%\\Token Chowhound\\data\\imports`
-- 时间线日志：`%APPDATA%\\Token Chowhound\\data\\timeline-events`
+- 状态文件：`%APPDATA%\\Fries\\subscriptions.json`
+- 快照目录：`%APPDATA%\\Fries\\data\\snapshots`
+- 导入目录：`%APPDATA%\\Fries\\data\\imports`
+- 时间线日志：`%APPDATA%\\Fries\\data\\timeline-events`
 
 这些路径在设置页里也能直接打开，不需要手动找目录。
 
@@ -106,14 +106,14 @@ npm run release:beta
 ## 当前版本
 
 - 当前版本号：`0.3.0-beta`
-- 产品名：`Token Chowhound / 大胃袋`
-- Windows 安装包文件名：`Token-Chowhound-Setup-0.3.0-beta-x64.exe`
-- Windows 便携版文件名：`Token-Chowhound-Portable-0.3.0-beta-x64.exe`
+- 产品名：`Fries / 薯条`
+- Windows 安装包文件名：`Fries-Setup-0.3.0-beta-x64.exe`
+- Windows 便携版文件名：`Fries-Portable-0.3.0-beta-x64.exe`
 
 ## 开源发布建议
 
 - 许可证：MIT
-- 建议仓库名：`sunrisever/token-chowhound`
+- 建议仓库名：`sunrisever/fries`
 - GitHub Actions CI：`.github/workflows/ci.yml`
 - 建议 GitHub topics：
   `codex`, `claude-code`, `opencode`, `openclaw`, `agents-md`, `agent-skill`, `claude-code-skill`

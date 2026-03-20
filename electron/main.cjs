@@ -15,9 +15,9 @@ const { runSelfCheck } = require("./self-check.cjs");
 
 const DEV_SERVER_URL =
   process.env.AI_ACCOUNT_CONSOLE_DEV_URL || "http://127.0.0.1:5173";
-const APP_DATA_DIR_NAME = "Token Chowhound";
-const LEGACY_APP_DATA_DIR_NAME = "ai-account-console";
-const APP_USER_MODEL_ID = "com.sunrisever.tokenchowhound";
+const APP_DATA_DIR_NAME = "Fries";
+const LEGACY_APP_DATA_DIR_NAMES = ["Token Chowhound", "ai-account-console"];
+const APP_USER_MODEL_ID = "com.sunrisever.fries";
 
 let mainWindow = null;
 let settingsWindow = null;
@@ -46,8 +46,10 @@ function getUserDataRoot() {
   return path.join(app.getPath("appData"), APP_DATA_DIR_NAME);
 }
 
-function getLegacyUserDataRoot() {
-  return path.join(app.getPath("appData"), LEGACY_APP_DATA_DIR_NAME);
+function getLegacyUserDataRoots() {
+  return LEGACY_APP_DATA_DIR_NAMES.map((dirName) =>
+    path.join(app.getPath("appData"), dirName),
+  );
 }
 
 function getDataDir() {
@@ -84,9 +86,12 @@ function getMemoryFilePath() {
 }
 
 async function ensureDataDirs() {
-  const legacyStateFile = path.join(getLegacyUserDataRoot(), "dashboard-state.json");
   const previousStateFile = path.join(getUserDataRoot(), "dashboard-state.json");
   const nextStateFile = getStateFilePath();
+  const legacyStateFiles = getLegacyUserDataRoots().flatMap((legacyRoot) => [
+    path.join(legacyRoot, "subscriptions.json"),
+    path.join(legacyRoot, "dashboard-state.json"),
+  ]);
 
   await fs.mkdir(getUserDataRoot(), { recursive: true });
   await fs.mkdir(getDataDir(), { recursive: true });
@@ -95,11 +100,17 @@ async function ensureDataDirs() {
   await fs.mkdir(getCacheDir(), { recursive: true });
   await fs.mkdir(getTimelineLogsDir(), { recursive: true });
 
-  if (!fssync.existsSync(nextStateFile) && fssync.existsSync(legacyStateFile)) {
-    try {
-      await fs.copyFile(legacyStateFile, nextStateFile);
-    } catch {
-      // ignore migration failure
+  if (!fssync.existsSync(nextStateFile)) {
+    for (const legacyStateFile of legacyStateFiles) {
+      if (!fssync.existsSync(legacyStateFile)) {
+        continue;
+      }
+      try {
+        await fs.copyFile(legacyStateFile, nextStateFile);
+        break;
+      } catch {
+        // ignore migration failure
+      }
     }
   }
 
@@ -330,7 +341,7 @@ function buildOpenAiMemoryBlock(accounts) {
     .join("\n");
 
   return [
-    "### Token Chowhound 自动同步（OpenAI）",
+    "### Fries 自动同步（OpenAI）",
     "",
     "> 权威口径：OpenAI 的订阅有效期统一取 `liveUsage.subscriptionActiveUntil`；若该字段尚未同步，则显示为“待首次同步”。",
     "",
@@ -355,7 +366,7 @@ async function syncAccountsMemory(accounts) {
     }
   }
 
-  const marker = "### Token Chowhound 自动同步（OpenAI）";
+  const marker = "### Fries 自动同步（OpenAI）";
   const nextHeadingPattern = /\n### /g;
   let nextContent = raw;
 
@@ -446,7 +457,7 @@ function hideToTray() {
   if (tray && process.platform === "win32" && !hasShownTrayHint) {
     tray.displayBalloon({
       iconType: "info",
-      title: "Token Chowhound",
+      title: "Fries",
       content: "已最小化到任务栏通知区，点击托盘图标可恢复。",
     });
     hasShownTrayHint = true;
@@ -487,7 +498,7 @@ function createBaseWindow(overrides = {}) {
     minWidth: 1240,
     minHeight: 760,
     show: false,
-    title: "Token Chowhound",
+    title: "Fries",
     frame: false,
     transparent: true,
     backgroundColor: "#00000000",
@@ -563,7 +574,7 @@ function createSettingsWindow() {
     minWidth: 920,
     minHeight: 700,
     show: false,
-    title: "Token Chowhound Settings",
+    title: "Fries Settings",
     x: mainBounds ? mainBounds.x + 70 : undefined,
     y: mainBounds ? mainBounds.y + 50 : undefined,
     transparent: false,
@@ -592,7 +603,7 @@ function createSettingsWindow() {
 function createTray() {
   const icon = createTrayIcon();
   tray = new Tray(icon);
-  tray.setToolTip("Token Chowhound");
+  tray.setToolTip("Fries");
 
   const menu = Menu.buildFromTemplate([
     {

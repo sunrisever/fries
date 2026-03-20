@@ -1,8 +1,8 @@
 [简体中文](./README_CN.md) | English
 
-# Token Chowhound
+# Fries
 
-Token Chowhound is a desktop dashboard for multi-account quota, subscription, and snapshot operations. It is designed for people who rotate multiple OpenAI seats or API providers and want a single local panel for window limits, subscription expiry, token analytics, and timeline visibility.
+Fries is a desktop dashboard for multi-account quota, subscription, and snapshot operations. It is designed for people who rotate multiple OpenAI seats or API providers and want a single local panel for window limits, subscription expiry, token analytics, and timeline visibility.
 
 ## Description
 
@@ -50,10 +50,10 @@ tests/                         Node-based smoke tests
 
 Runtime data is stored outside the project directory:
 
-- State file: `%APPDATA%\\Token Chowhound\\subscriptions.json`
-- Snapshots: `%APPDATA%\\Token Chowhound\\data\\snapshots`
-- Imports: `%APPDATA%\\Token Chowhound\\data\\imports`
-- Timeline logs: `%APPDATA%\\Token Chowhound\\data\\timeline-events`
+- State file: `%APPDATA%\\Fries\\subscriptions.json`
+- Snapshots: `%APPDATA%\\Fries\\data\\snapshots`
+- Imports: `%APPDATA%\\Fries\\data\\imports`
+- Timeline logs: `%APPDATA%\\Fries\\data\\timeline-events`
 
 The app also exposes these paths from the settings page so users can open them without leaving the UI.
 
@@ -106,14 +106,14 @@ The build is configured for GitHub Releases metadata, but packaging commands sti
 ## Release Notes
 
 - Current app version: `0.3.0-beta`
-- Product name: `Token Chowhound / 大胃袋`
-- Default Windows installer artifact: `Token-Chowhound-Setup-0.3.0-beta-x64.exe`
-- Default Windows portable artifact: `Token-Chowhound-Portable-0.3.0-beta-x64.exe`
+- Product name: `Fries / 薯条`
+- Default Windows installer artifact: `Fries-Setup-0.3.0-beta-x64.exe`
+- Default Windows portable artifact: `Fries-Portable-0.3.0-beta-x64.exe`
 
 ## Open-Source Publishing Notes
 
 - License: MIT
-- Suggested repository: `sunrisever/token-chowhound`
+- Suggested repository: `sunrisever/fries`
 - GitHub Actions CI: `.github/workflows/ci.yml`
 - Suggested GitHub topics:
   `codex`, `claude-code`, `opencode`, `openclaw`, `agents-md`, `agent-skill`, `claude-code-skill`

@@ -1,10 +1,10 @@
 [简体中文](./README_CN.md) | [English](./README.md)
 
-# Token Chowhound v0.3.0-beta Release Notes
+# Fries v0.3.0-beta Release Notes
 
 ## Summary
 
-Token Chowhound is now ready for a proper public beta. This release focuses on release hygiene, diagnostics, and repository readiness rather than adding another wave of UI complexity.
+Fries is now ready for a proper public beta. This release focuses on release hygiene, diagnostics, and repository readiness rather than adding another wave of UI complexity.
 
 ## Highlights
 

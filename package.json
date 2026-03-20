@@ -1,17 +1,17 @@
 {
-  "name": "token-chowhound",
+  "name": "fries",
   "private": true,
   "version": "0.3.0-beta",
-  "description": "大胃袋 | Token Chowhound",
+  "description": "薯条 | Fries",
   "author": "sunrisever",
   "license": "MIT",
-  "homepage": "https://github.com/sunrisever/token-chowhound",
+  "homepage": "https://github.com/sunrisever/fries",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sunrisever/token-chowhound.git"
+    "url": "https://github.com/sunrisever/fries.git"
   },
   "bugs": {
-    "url": "https://github.com/sunrisever/token-chowhound/issues"
+    "url": "https://github.com/sunrisever/fries/issues"
   },
   "type": "module",
   "main": "electron/main.cjs",
@@ -35,8 +35,8 @@
     "dist": "npm run pack:release"
   },
   "build": {
-    "appId": "com.sunrisever.tokenchowhound",
-    "productName": "Token Chowhound",
+    "appId": "com.sunrisever.fries",
+    "productName": "Fries",
     "copyright": "Copyright © 2026 sunrisever",
     "directories": {
       "output": "release",
@@ -53,32 +53,32 @@
       {
         "provider": "github",
         "owner": "sunrisever",
-        "repo": "token-chowhound",
+        "repo": "fries",
         "releaseType": "release"
       }
     ],
     "win": {
-      "artifactName": "Token-Chowhound-${version}-${arch}.${ext}",
+      "artifactName": "Fries-${version}-${arch}.${ext}",
       "icon": "build/icon.ico",
       "publish": [
         {
           "provider": "github",
           "owner": "sunrisever",
-          "repo": "token-chowhound",
+          "repo": "fries",
           "releaseType": "release"
         }
       ]
     },
     "nsis": {
-      "artifactName": "Token-Chowhound-Setup-${version}-${arch}.${ext}",
+      "artifactName": "Fries-Setup-${version}-${arch}.${ext}",
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Token Chowhound"
+      "shortcutName": "Fries"
     },
     "portable": {
-      "artifactName": "Token-Chowhound-Portable-${version}-${arch}.${ext}"
+      "artifactName": "Fries-Portable-${version}-${arch}.${ext}"
     }
   },
   "dependencies": {

@@ -2,7 +2,7 @@
 
 ## Project
 
-- Name: `Token Chowhound / 大胃袋`
+- Name: `Fries / 薯条`
 - Stack: `Electron + React + Vite + TypeScript`
 - Purpose: a desktop control panel for quota windows, subscription expiry, token analytics, and local snapshots
 
@@ -17,9 +17,9 @@
 
 ## Runtime Data
 
-- State: `%APPDATA%\\Token Chowhound\\subscriptions.json`
-- Snapshots: `%APPDATA%\\Token Chowhound\\data\\snapshots`
-- Imports: `%APPDATA%\\Token Chowhound\\data\\imports`
+- State: `%APPDATA%\\Fries\\subscriptions.json`
+- Snapshots: `%APPDATA%\\Fries\\data\\snapshots`
+- Imports: `%APPDATA%\\Fries\\data\\imports`
 - Safe public examples: `examples/sample-data/`
 - Sensitive local-only files: `local/`
 
@@ -33,9 +33,9 @@
 
 ## Release Guidance
 
-- Expected repository: `sunrisever/token-chowhound`
+- Expected repository: `sunrisever/fries`
 - License: MIT
-- Windows artifacts should use the `Token-Chowhound-${version}-${arch}` name pattern
+- Windows artifacts should use the `Fries-${version}-${arch}` name pattern
 
 ## Multi-Agent Support
 

@@ -2,7 +2,7 @@
 
 ## Project
 
-- Name: `Token Chowhound / 大胃袋`
+- Name: `Fries / 薯条`
 - Stack: `Electron + React + Vite + TypeScript`
 - Goal: local-first dashboard for account quota, subscription, and snapshot operations
 
@@ -17,9 +17,9 @@
 
 ## Data Model
 
-- Runtime state file: `%APPDATA%\\Token Chowhound\\subscriptions.json`
-- Snapshot cache: `%APPDATA%\\Token Chowhound\\data\\snapshots`
-- Manual import folder: `%APPDATA%\\Token Chowhound\\data\\imports`
+- Runtime state file: `%APPDATA%\\Fries\\subscriptions.json`
+- Snapshot cache: `%APPDATA%\\Fries\\data\\snapshots`
+- Manual import folder: `%APPDATA%\\Fries\\data\\imports`
 - Public examples: `examples/sample-data/`
 - Private local-only files: `local/`
 
@@ -33,9 +33,9 @@
 
 ## Release Notes
 
-- Target repository: `sunrisever/token-chowhound`
+- Target repository: `sunrisever/fries`
 - License: MIT
-- Release artifacts should use the `Token-Chowhound-${version}-${arch}` pattern
+- Release artifacts should use the `Fries-${version}-${arch}` pattern
 
 ## Assistant Compatibility
 

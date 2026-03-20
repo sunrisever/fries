@@ -3,7 +3,7 @@ import type { DashboardState } from "./types";
 export const dashboardSeed: DashboardState = {
   version: 3,
   profile: {
-    title: "Token Chowhound",
+    title: "Fries",
     currentMode: "OpenAI 主线账号运营盘 + 其他 provider 观察盘",
     summary:
       "当前默认先用 Codex / GPT 流量池；Claude、Kimi 降级为观察或兜底，Gemini 仅保留静态观察，GLM-OCR 保留精确额度监控。",
