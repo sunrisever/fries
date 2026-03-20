@@ -1,0 +1,31 @@
+{
+  "id": "snapshot-example-001",
+  "accountId": "sample-openai-1",
+  "accountLabel": "Codex Team Sample",
+  "email": "sample@example.com",
+  "workspace": "SampleWorkspace",
+  "plan": "ChatGPT Business",
+  "provider": "OpenAI",
+  "sourceSyncedAt": "2026/03/18 15:28:12",
+  "sourceSyncedAtMs": 1773809292000,
+  "syncedAt": "2026/03/18 15:30:00",
+  "syncedAtMs": 1773809400000,
+  "recordedAt": "2026/03/18 15:30:00",
+  "recordedAtMs": 1773809400000,
+  "subscriptionActiveUntil": "2026/04/16 16:51:07",
+  "subscriptionActiveUntilMs": 1776329467000,
+  "fiveHour": {
+    "usedPercent": 24,
+    "remainingPercent": 76,
+    "resetsAt": "2026/03/18 21:30:00",
+    "resetsAtMs": 1773831000000
+  },
+  "sevenDay": {
+    "usedPercent": 59,
+    "remainingPercent": 41,
+    "resetsAt": "2026/03/23 19:15:00",
+    "resetsAtMs": 1774264500000
+  },
+  "totalTokens": 923114,
+  "lastTokens": 12409
+}

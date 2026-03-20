@@ -1,0 +1,102 @@
+{
+  "name": "token-chowhound",
+  "private": true,
+  "version": "0.3.0-beta",
+  "description": "大胃袋 | Token Chowhound",
+  "author": "sunrisever",
+  "license": "MIT",
+  "homepage": "https://github.com/sunrisever/token-chowhound",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sunrisever/token-chowhound.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sunrisever/token-chowhound/issues"
+  },
+  "type": "module",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "dev": "concurrently -k \"npm:dev:renderer\" \"npm:dev:electron\"",
+    "dev:renderer": "vite",
+    "dev:electron": "wait-on http://127.0.0.1:5173 && electron .",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test tests/self-check.test.cjs",
+    "check:examples": "node scripts/check-examples.cjs",
+    "check:release": "node scripts/check-release.cjs",
+    "self-check": "node scripts/run-self-check.cjs",
+    "check": "npm run typecheck && npm run test && npm run check:examples && npm run check:release && npm run build",
+    "build": "vite build",
+    "preview": "vite preview",
+    "pack:dir": "npm run build && electron-builder --publish never --win dir",
+    "pack:portable": "npm run build && electron-builder --publish never --win portable",
+    "pack:installer": "npm run build && electron-builder --publish never --win nsis",
+    "pack:release": "npm run build && electron-builder --publish never --win nsis portable",
+    "release:beta": "npm run check && electron-builder --publish never --win nsis portable",
+    "dist": "npm run pack:release"
+  },
+  "build": {
+    "appId": "com.sunrisever.tokenchowhound",
+    "productName": "Token Chowhound",
+    "copyright": "Copyright © 2026 sunrisever",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json",
+      "src/assets/**/*",
+      "public/**/*"
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "sunrisever",
+        "repo": "token-chowhound",
+        "releaseType": "release"
+      }
+    ],
+    "win": {
+      "artifactName": "Token-Chowhound-${version}-${arch}.${ext}",
+      "icon": "build/icon.ico",
+      "publish": [
+        {
+          "provider": "github",
+          "owner": "sunrisever",
+          "repo": "token-chowhound",
+          "releaseType": "release"
+        }
+      ]
+    },
+    "nsis": {
+      "artifactName": "Token-Chowhound-Setup-${version}-${arch}.${ext}",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Token Chowhound"
+    },
+    "portable": {
+      "artifactName": "Token-Chowhound-Portable-${version}-${arch}.${ext}"
+    }
+  },
+  "dependencies": {
+    "lightweight-charts": "^5.1.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "concurrently": "^9.2.1",
+    "electron": "^41.0.2",
+    "electron-builder": "^26.8.1",
+    "playwright": "^1.58.2",
+    "typescript": "~5.9.3",
+    "vite": "^8.0.0",
+    "wait-on": "^9.0.4"
+  }
+}

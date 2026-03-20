@@ -1,0 +1,128 @@
+{
+  "version": 3,
+  "profile": {
+    "title": "Token Chowhound",
+    "currentMode": "OpenAI mainline ops + observer providers",
+    "summary": "Public sample data for import testing.",
+    "strategyNotes": [
+      "Keep OpenAI seats on the mainline board.",
+      "Treat observer providers as secondary cards."
+    ],
+    "lastReviewedAt": "2026-03-20"
+  },
+  "settings": {
+    "syncIntervalMinutes": 1,
+    "snapshotRetentionDays": 14,
+    "autoSyncOnLaunch": true,
+    "themeMode": "system",
+    "themePreset": "nordic-blue",
+    "locale": "en",
+    "visualEffectMode": "frosted",
+    "performanceMode": false,
+    "timelineScope": "week",
+    "analyticsRange": "week",
+    "analyticsChartMode": "line",
+    "heatmapScope": "month"
+  },
+  "accounts": [
+    {
+      "id": "sample-openai-1",
+      "provider": "OpenAI",
+      "accountLabel": "Codex Team Sample",
+      "email": "sample@example.com",
+      "plan": "ChatGPT Business",
+      "cluster": "openai",
+      "productKey": "chatgpt",
+      "tierKey": "business",
+      "teamMode": "team",
+      "status": "active",
+      "priority": 1,
+      "isActive": true,
+      "workspace": "SampleWorkspace",
+      "statusDetail": "Sample active OpenAI seat.",
+      "usageLabel": "7d 41% · 5h 76%",
+      "usagePercent": 41,
+      "trackingMode": "window",
+      "resetAt": "2026-03-23 19:15:00",
+      "expiryAt": "2026-04-16 16:51:07",
+      "costLabel": "Sample",
+      "sourceLabel": "Example data",
+      "notes": [
+        "Safe public example."
+      ],
+      "liveUsage": {
+        "provider": "OpenAI",
+        "accountEmail": "sample@example.com",
+        "plan": "ChatGPT Business",
+        "subscriptionActiveUntil": "2026/04/16 16:51:07",
+        "subscriptionActiveUntilMs": 1776329467000,
+        "fiveHour": {
+          "usedPercent": 24,
+          "remainingPercent": 76,
+          "resetsAt": "2026/03/18 21:30:00",
+          "resetsAtMs": 1773831000000
+        },
+        "sevenDay": {
+          "usedPercent": 59,
+          "remainingPercent": 41,
+          "resetsAt": "2026/03/23 19:15:00",
+          "resetsAtMs": 1774264500000
+        },
+        "totalTokens": 923114,
+        "lastTokens": 12409,
+        "sourceLabel": "Example snapshot",
+        "sourceSyncedAt": "2026/03/18 15:28:12",
+        "sourceSyncedAtMs": 1773809292000,
+        "syncedAt": "2026/03/18 15:30:00",
+        "syncedAtMs": 1773809400000,
+        "recordedAt": "2026/03/18 15:30:00",
+        "recordedAtMs": 1773809400000
+      },
+      "usageHistory": []
+    },
+    {
+      "id": "sample-kimi-1",
+      "provider": "Moonshot",
+      "accountLabel": "Kimi Coding Sample",
+      "email": "sample-api@example.com",
+      "plan": "Allegretto Coding Plan",
+      "cluster": "observer",
+      "productKey": "kimi",
+      "tierKey": "allegretto",
+      "teamMode": "none",
+      "status": "observe",
+      "priority": 20,
+      "isActive": false,
+      "statusDetail": "Sample observer provider.",
+      "usageLabel": "Low-frequency reserve",
+      "usagePercent": 8,
+      "trackingMode": "exact",
+      "costLabel": "Example quota",
+      "tokensUsed": 120000,
+      "tokensRemaining": 9880000,
+      "sourceLabel": "Example data",
+      "notes": [
+        "Shows how non-OpenAI accounts appear."
+      ]
+    }
+  ],
+  "activityLog": [
+    {
+      "id": "sample-1",
+      "at": "2026-03-18 15:30:00",
+      "kind": "sync",
+      "title": "Imported example state",
+      "detail": "Sample data imported from examples/sample-data."
+    }
+  ],
+  "timelineLog": [
+    {
+      "id": "sample-timeline-1",
+      "at": "2026-03-23 19:15:00",
+      "atMs": 1774264500000,
+      "kind": "reset7d",
+      "accountId": "sample-openai-1",
+      "note": "Sample weekly reset event."
+    }
+  ]
+}
