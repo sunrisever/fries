@@ -105,10 +105,10 @@ The build is configured for GitHub Releases metadata, but packaging commands sti
 
 ## Release Notes
 
-- Current app version: `0.3.0-beta`
+- Current app version: `0.3.1-beta`
 - Product name: `Fries / 薯条`
-- Default Windows installer artifact: `Fries-Setup-0.3.0-beta-x64.exe`
-- Default Windows portable artifact: `Fries-Portable-0.3.0-beta-x64.exe`
+- Default Windows installer artifact: `Fries-Setup-0.3.1-beta-x64.exe`
+- Default Windows portable artifact: `Fries-Portable-0.3.1-beta-x64.exe`
 
 ## Open-Source Publishing Notes
 

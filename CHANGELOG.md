@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 0.3.1-beta
+
+- Renamed the project and published artifacts from `Token Chowhound / 大胃袋` to `Fries / 薯条`.
+- Renamed the GitHub repository to `sunrisever/fries` and refreshed the release About metadata and topics.
+- Switched runtime defaults to the new `%APPDATA%\\Fries` path while keeping automatic migration compatibility from older app-data folders.
+
 ## 0.3.0-beta
 
 - Added repository-grade `typecheck`, `node:test`, example-data validation, and release consistency checks.
