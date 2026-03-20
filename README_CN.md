@@ -101,7 +101,19 @@ npm run pack:portable
 npm run release:beta
 ```
 
+当前已经稳定产出的包型：
+
+- Windows 安装包：`Fries-Setup-<version>-x64.exe`
+- Windows 便携版：`Fries-Portable-<version>-x64.exe`
+- Windows 免安装运行目录：`release/win-unpacked/`
+
 项目已经配置成 GitHub Releases 风格的发布元数据，但本地打包脚本仍然使用 `--publish never`，所以不会在本机打包时自动上传。
+
+多平台说明：
+
+- 目前仓库已经稳定支持 Windows 发布。
+- Linux 后续可以补 `AppImage` / `deb`。
+- macOS 也可以补 `dmg` / `zip`，但如果想让普通用户顺利安装，通常还需要 Apple 签名 / notarization。
 
 ## 当前版本
 
@@ -115,6 +127,7 @@ npm run release:beta
 - 许可证：MIT
 - 建议仓库名：`sunrisever/fries`
 - GitHub Actions CI：`.github/workflows/ci.yml`
+- 维护者发布文档：`docs/release/`
 - 建议 GitHub topics：
   `codex`, `claude-code`, `opencode`, `openclaw`, `agents-md`, `agent-skill`, `claude-code-skill`
 

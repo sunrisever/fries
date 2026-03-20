@@ -101,7 +101,19 @@ npm run pack:portable
 npm run release:beta
 ```
 
+Current packaged artifacts:
+
+- Windows installer: `Fries-Setup-<version>-x64.exe`
+- Windows portable: `Fries-Portable-<version>-x64.exe`
+- Windows unpacked dir: `release/win-unpacked/`
+
 The build is configured for GitHub Releases metadata, but packaging commands still use `--publish never`, so local packaging does not upload anything.
+
+Multi-platform note:
+
+- The current repo is release-ready for Windows.
+- Linux can be added next as `AppImage` / `deb` in CI.
+- macOS can be added as `dmg` / `zip`, but polished distribution usually needs Apple signing / notarization.
 
 ## Release Notes
 
@@ -115,6 +127,7 @@ The build is configured for GitHub Releases metadata, but packaging commands sti
 - License: MIT
 - Suggested repository: `sunrisever/fries`
 - GitHub Actions CI: `.github/workflows/ci.yml`
+- Maintainer release docs: `docs/release/`
 - Suggested GitHub topics:
   `codex`, `claude-code`, `opencode`, `openclaw`, `agents-md`, `agent-skill`, `claude-code-skill`
 
