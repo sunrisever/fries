@@ -585,13 +585,13 @@
   background: rgba(118, 126, 137, 0.92);
 }
 
-.timeline-event-card.kind-switch,
-.timeline-detail-panel.kind-switch {
+.timeline-event-card.kind-login,
+.timeline-detail-panel.kind-login {
   border-color: rgba(143, 124, 236, 0.42);
   background: linear-gradient(135deg, rgba(236, 231, 255, 0.94), rgba(247, 244, 255, 0.9));
 }
 
-.timeline-event-card.kind-switch::before {
+.timeline-event-card.kind-login::before {
   background: rgba(122, 108, 207, 0.92);
 }
 
@@ -1495,6 +1495,85 @@ button {
   flex-direction: column;
   position: relative;
   overflow: hidden;
+}
+
+.window-resize-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 48;
+  pointer-events: none;
+}
+
+.window-resize-handle {
+  position: absolute;
+  pointer-events: auto;
+  -webkit-app-region: no-drag;
+}
+
+.window-resize-handle.edge-n,
+.window-resize-handle.edge-s {
+  left: 14px;
+  right: 14px;
+  height: 8px;
+}
+
+.window-resize-handle.edge-e,
+.window-resize-handle.edge-w {
+  top: 14px;
+  bottom: 14px;
+  width: 8px;
+}
+
+.window-resize-handle.edge-n {
+  top: 0;
+  cursor: ns-resize;
+}
+
+.window-resize-handle.edge-s {
+  bottom: 0;
+  cursor: ns-resize;
+}
+
+.window-resize-handle.edge-e {
+  right: 0;
+  cursor: ew-resize;
+}
+
+.window-resize-handle.edge-w {
+  left: 0;
+  cursor: ew-resize;
+}
+
+.window-resize-handle.corner-ne,
+.window-resize-handle.corner-nw,
+.window-resize-handle.corner-se,
+.window-resize-handle.corner-sw {
+  width: 14px;
+  height: 14px;
+}
+
+.window-resize-handle.corner-ne {
+  top: 0;
+  right: 0;
+  cursor: nesw-resize;
+}
+
+.window-resize-handle.corner-nw {
+  top: 0;
+  left: 0;
+  cursor: nwse-resize;
+}
+
+.window-resize-handle.corner-se {
+  right: 0;
+  bottom: 0;
+  cursor: nwse-resize;
+}
+
+.window-resize-handle.corner-sw {
+  left: 0;
+  bottom: 0;
+  cursor: nesw-resize;
 }
 
 .window-root::before {
@@ -3698,6 +3777,14 @@ button {
 .node-detail-note {
   margin-bottom: 16px !important;
   color: var(--text-soft) !important;
+}
+
+.node-detail-note--heuristic {
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--accent-mid) 34%, transparent);
+  background: color-mix(in srgb, var(--accent-soft) 18%, transparent);
+  color: var(--text-primary) !important;
 }
 
 .node-history {

@@ -126,7 +126,7 @@ export interface TimelineLogEntry {
   id: string;
   at: string;
   atMs?: number;
-  kind: "depleted5h" | "depleted7d" | "reset5h" | "reset7d" | "expired" | "switch";
+  kind: "depleted5h" | "depleted7d" | "reset5h" | "reset7d" | "expired" | "login";
   accountId?: string;
   sourceAccountId?: string;
   targetAccountId?: string;
@@ -165,6 +165,7 @@ export interface SnapshotRecord {
   workspace?: string;
   plan: string;
   provider: string;
+  captureReason?: "sync" | "forced-switch" | "forced-depleted5h";
   sourceSyncedAt?: string;
   sourceSyncedAtMs?: number;
   syncedAt: string;
@@ -228,6 +229,7 @@ export interface DataPaths {
   memoryFile: string;
   timelineLogFile: string;
   timelineLogsDir?: string;
+  migrationReportFile?: string;
 }
 
 export interface DesktopApi {
@@ -254,6 +256,8 @@ export interface DesktopApi {
   toggleMaximizeWindow?(): Promise<void>;
   closeWindow?(): Promise<void>;
   getWindowState?(): Promise<DesktopWindowState>;
+  getWindowBounds?(): Promise<DesktopWindowBounds>;
+  setWindowBounds?(bounds: DesktopWindowBounds): Promise<DesktopWindowBounds>;
   onStateUpdated?(callback: (state: DashboardState) => void): () => void;
   onWindowStateChange?(callback: (state: DesktopWindowState) => void): () => void;
 }
@@ -261,6 +265,13 @@ export interface DesktopApi {
 export interface DesktopWindowState {
   isMaximized: boolean;
   isVisible: boolean;
+}
+
+export interface DesktopWindowBounds {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
 declare global {

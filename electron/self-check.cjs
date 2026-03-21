@@ -69,17 +69,16 @@ function signatureFromAccount(account) {
   }
 
   const email = normalizeEmail(account.email || account.liveUsage?.accountEmail);
-  const plan = normalizePlanKey(account.liveUsage?.plan || account.plan);
   const subscriptionActiveUntilMs =
     account.liveUsage?.subscriptionActiveUntilMs ||
     toMs(account.liveUsage?.subscriptionActiveUntil) ||
     toMs(account.expiryAt);
 
-  if (!email || !plan || !subscriptionActiveUntilMs) {
+  if (!email || !subscriptionActiveUntilMs) {
     return null;
   }
 
-  return `${email}::${plan}::${subscriptionActiveUntilMs}`;
+  return `${email}::${subscriptionActiveUntilMs}`;
 }
 
 function signatureFromSnapshot(snapshot) {
@@ -88,15 +87,14 @@ function signatureFromSnapshot(snapshot) {
   }
 
   const email = normalizeEmail(snapshot.email || snapshot.accountEmail);
-  const plan = normalizePlanKey(snapshot.plan);
   const subscriptionActiveUntilMs =
     snapshot.subscriptionActiveUntilMs || toMs(snapshot.subscriptionActiveUntil);
 
-  if (!email || !plan || !subscriptionActiveUntilMs) {
+  if (!email || !subscriptionActiveUntilMs) {
     return null;
   }
 
-  return `${email}::${plan}::${subscriptionActiveUntilMs}`;
+  return `${email}::${subscriptionActiveUntilMs}`;
 }
 
 async function readJsonIfExists(filePath) {

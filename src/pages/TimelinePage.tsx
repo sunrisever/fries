@@ -22,7 +22,7 @@ const DATA_YEAR_MAX = 2036;
 
 type TimelineEventView = {
   id: string;
-  kind: "depleted5h" | "depleted7d" | "reset5h" | "reset7d" | "expired" | "switch";
+  kind: "depleted5h" | "depleted7d" | "reset5h" | "reset7d" | "expired" | "login";
   timestamp: number;
   when: string;
   account: AccountRecord;
@@ -455,7 +455,7 @@ function TimelinePageComponent({
   });
 
   const timelineLabel = (
-    kind: "depleted5h" | "depleted7d" | "reset5h" | "reset7d" | "expired" | "switch",
+    kind: "depleted5h" | "depleted7d" | "reset5h" | "reset7d" | "expired" | "login",
   ) => {
     switch (kind) {
       case "depleted5h":
@@ -468,13 +468,13 @@ function TimelinePageComponent({
         return uiText("恢复 7d 额度", "7d restored");
       case "expired":
         return uiText("订阅过期", "Subscription expired");
-      case "switch":
-        return uiText("切换账号", "Account switch");
+      case "login":
+        return uiText("登录账号", "Account login");
     }
   };
 
   const timelineClass = (
-    kind: "depleted5h" | "depleted7d" | "reset5h" | "reset7d" | "expired" | "switch",
+    kind: "depleted5h" | "depleted7d" | "reset5h" | "reset7d" | "expired" | "login",
   ) => {
     switch (kind) {
       case "depleted5h":
@@ -487,8 +487,8 @@ function TimelinePageComponent({
         return "kind-reset7d";
       case "expired":
         return "kind-expired";
-      case "switch":
-        return "kind-switch";
+      case "login":
+        return "kind-login";
     }
   };
 
@@ -635,7 +635,7 @@ function TimelinePageComponent({
         </div>
         {activeTimelineEvent.sourceAccount ? (
           <div className="timeline-detail-item">
-            <span>{uiText("切换路径", "Switch path")}</span>
+            <span>{uiText("登录来源", "Login source")}</span>
             <strong>{`${getDisplayTitle(activeTimelineEvent.sourceAccount)} -> ${getDisplayTitle(activeTimelineEvent.account)}`}</strong>
           </div>
         ) : null}

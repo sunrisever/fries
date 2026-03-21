@@ -1,5 +1,6 @@
 const os = require("os");
 const path = require("path");
+const fs = require("fs");
 const { runSelfCheck } = require("../electron/self-check.cjs");
 
 function getArg(flag) {
@@ -14,10 +15,25 @@ async function main() {
   const appDataBase = process.env.APPDATA
     ? process.env.APPDATA
     : path.join(os.homedir(), "AppData", "Roaming");
-  const candidateRoots = ["Fries", "Token Chowhound", "ai-account-console"].map((dir) =>
+  const candidateRoots = ["Fries", "fries", "Token Chowhound", "ai-account-console"].map((dir) =>
     path.join(appDataBase, dir),
   );
-  const appDataRoot = candidateRoots.find((root) => require("fs").existsSync(root)) || candidateRoots[0];
+  const candidateStates = candidateRoots
+    .map((root) => {
+      const stateFile = path.join(root, "subscriptions.json");
+      if (!fs.existsSync(stateFile)) {
+        return null;
+      }
+      return {
+        root,
+        stateFile,
+        mtimeMs: fs.statSync(stateFile).mtimeMs,
+      };
+    })
+    .filter(Boolean)
+    .sort((left, right) => right.mtimeMs - left.mtimeMs);
+
+  const appDataRoot = candidateStates[0]?.root || candidateRoots[0];
 
   const stateFile = getArg("--state") || path.join(appDataRoot, "subscriptions.json");
   const snapshotsDir = getArg("--snapshots") || path.join(appDataRoot, "data", "snapshots");

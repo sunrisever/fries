@@ -2,6 +2,13 @@
 
 # Changelog
 
+## 0.4.0-beta
+
+- Added a GitHub Actions release matrix for Windows, Linux, and macOS packaging.
+- Added local packaging scripts for Linux (`AppImage` / `deb`) and macOS (`zip` / `dmg`) alongside the existing Windows installer and portable flow.
+- Upgraded the publishing docs so local packaging, CI artifacts, and GitHub Releases are documented as separate release channels.
+- Kept Windows local packaging safe with `--publish never` while preparing tag-driven multi-platform uploads in CI.
+
 ## 0.3.1-beta
 
 - Renamed the project and published artifacts from `Token Chowhound / 大胃袋` to `Fries / 薯条`.

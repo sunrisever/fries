@@ -6,6 +6,7 @@ This folder contains maintainer-facing release material for Fries.
 
 - `RELEASE_CHECKLIST.md`: release hygiene checklist
 - `RELEASE_NOTES_0.3.0-beta.md`: archived public beta notes
-- `RELEASE_NOTES_0.3.1-beta.md`: current public beta notes
+- `RELEASE_NOTES_0.3.1-beta.md`: archived rename-release notes
+- `RELEASE_NOTES_0.4.0-beta.md`: current multi-platform beta notes
 
 These files are intentionally kept out of the repository root so the project homepage stays focused on end users.

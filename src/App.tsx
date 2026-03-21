@@ -19,6 +19,7 @@ import type {
   DashboardSettings,
   DashboardState,
   DataPaths,
+  DesktopWindowBounds,
   DesktopWindowState,
   HeatmapScope,
   LocaleMode,
@@ -42,10 +43,12 @@ const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const TimelinePage = lazy(() => import("./pages/TimelinePage"));
 
 const STORAGE_KEY = "ai-account-console.dashboard.v1";
-const APP_VERSION = "0.3.1-beta";
+const APP_VERSION = "0.4.0-beta";
 const APP_CHINESE_NAME = "薯条";
 const DATA_YEAR_MIN = 2026;
 const DATA_YEAR_MAX = 2036;
+const MAIN_WINDOW_MIN_WIDTH = 1240;
+const MAIN_WINDOW_MIN_HEIGHT = 760;
 
 type ViewId = "overview" | "analytics" | "providers" | "timeline" | "settings";
 
@@ -55,6 +58,15 @@ type PendingSyncChoice = {
   sourceAccountId?: string;
   sourceBackup?: AccountRecord;
   reason: string;
+};
+
+type ResizeDirection = "n" | "s" | "e" | "w" | "ne" | "nw" | "se" | "sw";
+
+type ResizeDragState = {
+  direction: ResizeDirection;
+  startScreenX: number;
+  startScreenY: number;
+  startBounds: DesktopWindowBounds;
 };
 
 type AccountEditorDraft = {
@@ -677,13 +689,12 @@ function snapshotRouteKey(
   snapshot?: Pick<LiveUsageSnapshot, "accountEmail" | "plan" | "subscriptionActiveUntil" | "subscriptionActiveUntilMs">,
 ) {
   const email = normalizeEmail(snapshot?.accountEmail);
-  const planKey = normalizePlanKey(snapshot?.plan);
   const expiryMs = subscriptionTime(snapshot);
-  if (!email || !planKey || typeof expiryMs !== "number") {
+  if (!email || typeof expiryMs !== "number") {
     return undefined;
   }
 
-  return `${email}|${planKey}|${expiryMs}`;
+  return `${email}|${expiryMs}`;
 }
 
 function signaturePromptKey(
@@ -698,15 +709,14 @@ function accountRouteKey(account?: AccountRecord) {
   }
 
   const email = normalizeEmail(account.email);
-  const planKey = normalizePlanKey(account.liveUsage?.plan ?? account.plan);
   const expiryMs = parseDateTimeValue(
     account.liveUsage?.subscriptionActiveUntilMs ?? account.liveUsage?.subscriptionActiveUntil ?? account.expiryAt,
   );
-  if (!email || !planKey || typeof expiryMs !== "number") {
+  if (!email || typeof expiryMs !== "number") {
     return undefined;
   }
 
-  return `${email}|${planKey}|${expiryMs}`;
+  return `${email}|${expiryMs}`;
 }
 
 function snapshotBelongsToAccount(account: AccountRecord | undefined, snapshot: LiveUsageSnapshot | undefined) {
@@ -1580,18 +1590,23 @@ function expiryMatchesAccount(account: AccountRecord, snapshot?: LiveUsageSnapsh
   return parseDateTimeValue(accountExpiry) === parseDateTimeValue(snapshotExpiry);
 }
 
-function buildSnapshotRecord(account: AccountRecord, snapshot: LiveUsageSnapshot): SnapshotRecord {
+function buildSnapshotRecord(
+  account: AccountRecord,
+  snapshot: LiveUsageSnapshot,
+  captureReason: SnapshotRecord["captureReason"] = "sync",
+): SnapshotRecord {
   const stampedSnapshot = stampSnapshot(snapshot);
   const sourceSyncedAtMs = snapshotSourceTime(stampedSnapshot);
   const recordedAtMs = stampedSnapshot.recordedAtMs ?? Date.now();
   return {
-    id: `${account.id}-${Date.now()}`,
+    id: `${account.id}-${captureReason ?? "sync"}-${Date.now()}`,
     accountId: account.id,
     accountLabel: account.accountLabel,
     email: account.email,
     workspace: account.workspace,
     plan: account.plan,
     provider: account.provider,
+    captureReason,
     sourceSyncedAt:
       formatUiDateTime(sourceSyncedAtMs) ??
       stampedSnapshot.sourceSyncedAt ??
@@ -1611,6 +1626,23 @@ function buildSnapshotRecord(account: AccountRecord, snapshot: LiveUsageSnapshot
     totalTokens: stampedSnapshot.totalTokens,
     lastTokens: stampedSnapshot.lastTokens,
   };
+}
+
+function snapshotRecordPersistenceKey(record?: SnapshotRecord) {
+  if (!record?.accountId) {
+    return undefined;
+  }
+
+  return [
+    record.accountId,
+    record.captureReason ?? "sync",
+    record.sourceSyncedAtMs ?? parseDateTimeValue(record.sourceSyncedAt) ?? parseDateTimeValue(record.syncedAt),
+    record.subscriptionActiveUntilMs ?? parseDateTimeValue(record.subscriptionActiveUntil),
+    clampPercent(record.fiveHour.remainingPercent),
+    clampPercent(record.sevenDay.remainingPercent),
+    typeof record.totalTokens === "number" ? record.totalTokens : "na",
+    typeof record.lastTokens === "number" ? record.lastTokens : "na",
+  ].join("|");
 }
 
 function snapshotMatchesAccount(account: AccountRecord | undefined, snapshot: SnapshotRecord) {
@@ -1718,6 +1750,14 @@ function workspaceNameLabel(account?: AccountRecord) {
   }
 
   return stripMerchantAlias(account.workspace) || "";
+}
+
+function requiresWorkspaceSignatureRouting(account?: AccountRecord) {
+  if (!account || account.cluster !== "openai") {
+    return false;
+  }
+
+  return inferTeamMode(account) === "team" && Boolean(stripMerchantAlias(account.workspace));
 }
 
 function compareNullableTime(left?: string, right?: string) {
@@ -1946,10 +1986,15 @@ function resetAccountToSeed(account: AccountRecord): AccountRecord {
 
 function ensureTimelineLog(current: DashboardState): TimelineLogEntry[] {
   const existing: TimelineLogEntry[] = Array.isArray(current.timelineLog)
-    ? [...current.timelineLog].map((entry) => ({
-        ...entry,
-        atMs: entry.atMs ?? parseDateTimeValue(entry.at),
-      }))
+    ? [...current.timelineLog].map((entry) => {
+        const legacyKind = entry.kind as TimelineLogEntry["kind"] | "switch";
+        return {
+          ...entry,
+          kind: legacyKind === "switch" ? "login" : legacyKind,
+          accountId: entry.accountId ?? entry.targetAccountId,
+          atMs: entry.atMs ?? parseDateTimeValue(entry.at),
+        };
+      })
     : [];
   const hasEntry = (kind: TimelineLogEntry["kind"], accountId: string, at?: string | number) => {
     const atMs = parseDateTimeValue(at);
@@ -2201,10 +2246,14 @@ function App() {
   );
   const importInputRef = useRef<HTMLInputElement>(null);
   const stateRef = useRef<DashboardState>(state);
+  const snapshotsRef = useRef<SnapshotRecord[]>(snapshots);
   const pendingSyncChoiceRef = useRef<PendingSyncChoice | null>(null);
   const skipDesktopSaveRef = useRef<boolean>(false);
   const persistTimerRef = useRef<number | null>(null);
   const signaturePromptCooldownRef = useRef<Map<string, number>>(new Map());
+  const resizeDragRef = useRef<ResizeDragState | null>(null);
+  const resizeRafRef = useRef<number | null>(null);
+  const resizePendingBoundsRef = useRef<DesktopWindowBounds | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -2293,12 +2342,19 @@ function App() {
       if (persistTimerRef.current) {
         window.clearTimeout(persistTimerRef.current);
       }
+      if (resizeRafRef.current) {
+        window.cancelAnimationFrame(resizeRafRef.current);
+      }
     };
   }, []);
 
   useEffect(() => {
     stateRef.current = state;
   }, [state]);
+
+  useEffect(() => {
+    snapshotsRef.current = snapshots;
+  }, [snapshots]);
 
   useEffect(() => {
     pendingSyncChoiceRef.current = pendingSyncChoice;
@@ -2315,6 +2371,85 @@ function App() {
       window.clearInterval(timer);
     };
   }, []);
+
+  useEffect(() => {
+    function flushResizeBounds() {
+      resizeRafRef.current = null;
+      const nextBounds = resizePendingBoundsRef.current;
+      resizePendingBoundsRef.current = null;
+      if (nextBounds) {
+        void window.desktopApi?.setWindowBounds?.(nextBounds);
+      }
+    }
+
+    function computeResizedBounds(
+      dragState: ResizeDragState,
+      screenX: number,
+      screenY: number,
+    ): DesktopWindowBounds {
+      const deltaX = screenX - dragState.startScreenX;
+      const deltaY = screenY - dragState.startScreenY;
+      let nextX = dragState.startBounds.x;
+      let nextY = dragState.startBounds.y;
+      let nextWidth = dragState.startBounds.width;
+      let nextHeight = dragState.startBounds.height;
+
+      if (dragState.direction.includes("e")) {
+        nextWidth = Math.max(MAIN_WINDOW_MIN_WIDTH, dragState.startBounds.width + deltaX);
+      }
+      if (dragState.direction.includes("s")) {
+        nextHeight = Math.max(MAIN_WINDOW_MIN_HEIGHT, dragState.startBounds.height + deltaY);
+      }
+      if (dragState.direction.includes("w")) {
+        const width = Math.max(MAIN_WINDOW_MIN_WIDTH, dragState.startBounds.width - deltaX);
+        nextX = dragState.startBounds.x + (dragState.startBounds.width - width);
+        nextWidth = width;
+      }
+      if (dragState.direction.includes("n")) {
+        const height = Math.max(MAIN_WINDOW_MIN_HEIGHT, dragState.startBounds.height - deltaY);
+        nextY = dragState.startBounds.y + (dragState.startBounds.height - height);
+        nextHeight = height;
+      }
+
+      return {
+        x: Math.round(nextX),
+        y: Math.round(nextY),
+        width: Math.round(nextWidth),
+        height: Math.round(nextHeight),
+      };
+    }
+
+    function handlePointerMove(event: PointerEvent) {
+      const dragState = resizeDragRef.current;
+      if (!dragState || isSettingsWindow || windowState.isMaximized) {
+        return;
+      }
+      resizePendingBoundsRef.current = computeResizedBounds(dragState, event.screenX, event.screenY);
+      if (!resizeRafRef.current) {
+        resizeRafRef.current = window.requestAnimationFrame(flushResizeBounds);
+      }
+    }
+
+    function stopResizeDrag() {
+      resizeDragRef.current = null;
+      resizePendingBoundsRef.current = null;
+      if (resizeRafRef.current) {
+        window.cancelAnimationFrame(resizeRafRef.current);
+        resizeRafRef.current = null;
+      }
+    }
+
+    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("pointerup", stopResizeDrag);
+    window.addEventListener("pointercancel", stopResizeDrag);
+    window.addEventListener("blur", stopResizeDrag);
+    return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", stopResizeDrag);
+      window.removeEventListener("pointercancel", stopResizeDrag);
+      window.removeEventListener("blur", stopResizeDrag);
+    };
+  }, [isSettingsWindow, windowState.isMaximized]);
 
   useEffect(() => {
     setHeatmapMonthCursor((current) => clampDataMonth(heatmapYearCursor, current));
@@ -2618,10 +2753,11 @@ function App() {
 
     if (previousActive && previousActive.id !== nextAccount.id) {
       appendIfMissing(
-        createTimelineLogEntry("switch", eventAt, {
+        createTimelineLogEntry("login", eventAt, {
+          accountId: nextAccount.id,
           sourceAccountId: previousActive.id,
           targetAccountId: nextAccount.id,
-          note: `${getDisplayTitle(previousActive)} -> ${getDisplayTitle(nextAccount)}`,
+          note: `登录 ${getDisplayTitle(nextAccount)}（来自 ${getDisplayTitle(previousActive)}）`,
         }),
       );
     }
@@ -2629,7 +2765,7 @@ function App() {
     return nextState;
   }
 
-  function commitPendingSyncChoice(targetId: string) {
+  async function commitPendingSyncChoice(targetId: string) {
     const pending = pendingSyncChoiceRef.current;
     if (!pending || !targetId) {
       return;
@@ -2647,6 +2783,19 @@ function App() {
       setPendingSyncChoice(null);
       setPendingSyncTargetId("");
       return;
+    }
+
+    const previousTargetSnapshot = latestKnownSnapshot(committed.currentTarget);
+    if (committed.previousActive && committed.previousActive.id !== targetId) {
+      await forceSnapshotBeforeSwitch(committed.previousActive, pending.snapshot);
+    }
+    const forcedDepletionRecord = await forceSnapshotOnFiveHourDepletion(
+      committed.nextTarget,
+      previousTargetSnapshot,
+      pending.snapshot,
+    );
+    if (!forcedDepletionRecord) {
+      await persistSnapshotRecord(buildSnapshotRecord(committed.nextTarget, pending.snapshot));
     }
 
     let nextState = appendTimelineTransitions(
@@ -2681,6 +2830,84 @@ function App() {
     }
     setPendingSyncChoice(null);
     setPendingSyncTargetId("");
+  }
+
+  async function persistCriticalSnapshot(
+    account: AccountRecord | undefined,
+    snapshot: LiveUsageSnapshot | undefined,
+    captureReason: Extract<SnapshotRecord["captureReason"], "forced-switch" | "forced-depleted5h">,
+  ) {
+    if (!account || account.cluster !== "openai" || !snapshot) {
+      return null;
+    }
+
+    return persistSnapshotRecord(buildSnapshotRecord(account, snapshot, captureReason));
+  }
+
+  async function persistSnapshotRecord(record: SnapshotRecord) {
+    const normalizedRecord = normalizeSnapshotRecord(record);
+    const persistenceKey = snapshotRecordPersistenceKey(normalizedRecord);
+    if (
+      persistenceKey &&
+      snapshotsRef.current.some((existingRecord) => snapshotRecordPersistenceKey(existingRecord) === persistenceKey)
+    ) {
+      return null;
+    }
+
+    const nextSnapshots = [normalizedRecord, ...snapshotsRef.current].slice(0, 4000);
+    snapshotsRef.current = nextSnapshots;
+    setSnapshots(nextSnapshots);
+    await window.desktopApi?.saveOpenAiSnapshot?.(normalizedRecord);
+    return normalizedRecord;
+  }
+
+  function shouldForceSwitchSnapshot(
+    account: AccountRecord | undefined,
+    incomingSnapshot: LiveUsageSnapshot | undefined,
+  ) {
+    const currentSnapshot = latestKnownSnapshot(account);
+    if (!account || account.cluster !== "openai" || !currentSnapshot || !incomingSnapshot) {
+      return false;
+    }
+
+    return !snapshotBelongsToAccount(account, incomingSnapshot) && looksLikeWorkspaceSwitch(currentSnapshot, incomingSnapshot);
+  }
+
+  function shouldForceFiveHourDepletionSnapshot(
+    previousSnapshot: LiveUsageSnapshot | undefined,
+    incomingSnapshot: LiveUsageSnapshot | undefined,
+  ) {
+    if (!previousSnapshot || !incomingSnapshot) {
+      return false;
+    }
+
+    const previousFiveHour = clampPercent(previousSnapshot.fiveHour.remainingPercent);
+    const incomingFiveHour = clampPercent(incomingSnapshot.fiveHour.remainingPercent);
+    const incomingSevenDay = clampPercent(incomingSnapshot.sevenDay.remainingPercent);
+    return previousFiveHour > 0 && incomingFiveHour === 0 && incomingSevenDay > 0;
+  }
+
+  async function forceSnapshotBeforeSwitch(
+    account: AccountRecord | undefined,
+    incomingSnapshot: LiveUsageSnapshot | undefined,
+  ) {
+    if (!shouldForceSwitchSnapshot(account, incomingSnapshot)) {
+      return null;
+    }
+
+    return persistCriticalSnapshot(account, latestKnownSnapshot(account), "forced-switch");
+  }
+
+  async function forceSnapshotOnFiveHourDepletion(
+    account: AccountRecord | undefined,
+    previousSnapshot: LiveUsageSnapshot | undefined,
+    incomingSnapshot: LiveUsageSnapshot | undefined,
+  ) {
+    if (!account || account.cluster !== "openai" || !shouldForceFiveHourDepletionSnapshot(previousSnapshot, incomingSnapshot)) {
+      return null;
+    }
+
+    return persistCriticalSnapshot(account, incomingSnapshot, "forced-depleted5h");
   }
 
   async function syncCodexUsage(announce: boolean, preferredTargetId?: string) {
@@ -2736,12 +2963,16 @@ function App() {
       const singleSameEmailMatchesSignature = Boolean(
         singleSameEmailAccount && snapshotBelongsToAccount(singleSameEmailAccount, snapshot),
       );
+      const singleSameEmailNeedsWorkspaceRouting = requiresWorkspaceSignatureRouting(singleSameEmailAccount);
       const targetId =
         preferredTarget && preferredMatchesSnapshot
           ? preferredTarget.id
           : signatureMatches.length === 1
             ? signatureMatches[0]?.id
-            : sameEmailAccounts.length === 1 && (!singleSameEmailHasSignature || singleSameEmailMatchesSignature)
+            : sameEmailAccounts.length === 1 &&
+                (!singleSameEmailHasSignature ||
+                  singleSameEmailMatchesSignature ||
+                  !singleSameEmailNeedsWorkspaceRouting)
               ? singleSameEmailAccount?.id
               : !normalizedSnapshotEmail && hasSingleOpenAiAccount
                 ? currentOpenAiAccounts[0]?.id
@@ -2750,7 +2981,10 @@ function App() {
       const hasAmbiguousSameEmailTeams =
         sameEmailAccounts.length > 1 && signatureMatches.length !== 1;
       const hasSingleSameEmailSignatureMismatch =
-        sameEmailAccounts.length === 1 && singleSameEmailHasSignature && !singleSameEmailMatchesSignature;
+        sameEmailAccounts.length === 1 &&
+        singleSameEmailHasSignature &&
+        !singleSameEmailMatchesSignature &&
+        singleSameEmailNeedsWorkspaceRouting;
       const skipReason = preferredTarget && !preferredMatchesSnapshot
         ? `当前同步源邮箱 ${snapshot.accountEmail} 和你指定的 ${getDisplayTitle(preferredTarget)} 不一致，已阻止写入。`
         : normalizedSnapshotEmail
@@ -2765,6 +2999,7 @@ function App() {
 
       if (!preferredTargetId && (hasAmbiguousSameEmailTeams || hasSingleSameEmailSignatureMismatch)) {
         if (unmatchedSameEmailSignature && snapshot.subscriptionActiveUntil) {
+          await forceSnapshotBeforeSwitch(activeCandidate, snapshot);
           if (shouldThrottleSignaturePrompt(snapshot)) {
             return;
           }
@@ -2800,6 +3035,7 @@ function App() {
           }
         }
 
+        await forceSnapshotBeforeSwitch(activeCandidate, snapshot);
         openPendingSyncSelector({
           snapshot,
           matchedIds: (signatureMatches.length > 1 ? signatureMatches : sameEmailAccounts).map((account) => account.id),
@@ -2854,6 +3090,7 @@ function App() {
         return;
       }
 
+      const previousTargetSnapshot = latestKnownSnapshot(committed.currentTarget);
       let nextState = committed.updated;
       const previousActive = activeId ? current.accounts.find((account) => account.id === activeId) : undefined;
       const syncDetail = `${getDisplayTitle(committed.nextTarget)} · 5h 剩余 ${formatPercent(
@@ -2865,12 +3102,21 @@ function App() {
           : signatureMatches.length === 1
             ? "按订阅有效期自动识别"
             : sameEmailAccounts.length === 1
-              ? "按邮箱自动对齐"
-              : "按唯一账号自动对齐";
+            ? "按邮箱自动对齐"
+            : "按唯一账号自动对齐";
       const switchDetail =
         previousActive && previousActive.id !== targetId
           ? `${getDisplayTitle(previousActive)} -> ${getDisplayTitle(committed.nextTarget)} · ${switchReason}`
           : `${getDisplayTitle(committed.nextTarget)} · ${switchReason}`;
+
+      if (committed.shouldSwitchActive && previousActive && previousActive.id !== targetId) {
+        await forceSnapshotBeforeSwitch(previousActive, snapshot);
+      }
+      const forcedDepletionRecord = await forceSnapshotOnFiveHourDepletion(
+        committed.nextTarget,
+        previousTargetSnapshot,
+        snapshot,
+      );
 
       if (committed.shouldSwitchActive) {
         setSelectedId(targetId);
@@ -2886,9 +3132,9 @@ function App() {
 
       if (!announce && !committed.shouldSwitchActive) {
         setState(nextState);
-        const snapshotRecord = buildSnapshotRecord(committed.nextTarget, snapshot);
-        setSnapshots((currentSnapshots) => [snapshotRecord, ...currentSnapshots].slice(0, 4000));
-        void window.desktopApi?.saveOpenAiSnapshot?.(snapshotRecord);
+        if (!forcedDepletionRecord) {
+          await persistSnapshotRecord(buildSnapshotRecord(committed.nextTarget, snapshot));
+        }
         void window.desktopApi?.pruneSnapshots?.(stateRef.current.settings.snapshotRetentionDays);
         return;
       }
@@ -2899,9 +3145,9 @@ function App() {
 
       nextState = pushActivity(nextState, "sync", "同步当前 Codex 使用情况", syncDetail);
       setState(nextState);
-      const snapshotRecord = buildSnapshotRecord(committed.nextTarget, snapshot);
-      setSnapshots((currentSnapshots) => [snapshotRecord, ...currentSnapshots].slice(0, 4000));
-      void window.desktopApi?.saveOpenAiSnapshot?.(snapshotRecord);
+      if (!forcedDepletionRecord) {
+        await persistSnapshotRecord(buildSnapshotRecord(committed.nextTarget, snapshot));
+      }
       void window.desktopApi?.pruneSnapshots?.(stateRef.current.settings.snapshotRetentionDays);
     } catch {
       if (announce) {
@@ -4143,6 +4389,56 @@ function App() {
     void window.desktopApi?.closeWindow?.();
   }
 
+  async function handleResizePointerDown(direction: ResizeDirection, event: React.PointerEvent<HTMLDivElement>) {
+    if (
+      isSettingsWindow ||
+      windowState.isMaximized ||
+      !window.desktopApi?.getWindowBounds ||
+      !window.desktopApi?.setWindowBounds
+    ) {
+      return;
+    }
+    const startBounds = await window.desktopApi.getWindowBounds();
+    resizeDragRef.current = {
+      direction,
+      startScreenX: event.screenX,
+      startScreenY: event.screenY,
+      startBounds,
+    };
+    event.preventDefault();
+    event.stopPropagation();
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+  }
+
+  function renderResizeHandles() {
+    if (isSettingsWindow || windowState.isMaximized) {
+      return null;
+    }
+    const handles: { direction: ResizeDirection; className: string }[] = [
+      { direction: "n", className: "window-resize-handle edge-n" },
+      { direction: "s", className: "window-resize-handle edge-s" },
+      { direction: "e", className: "window-resize-handle edge-e" },
+      { direction: "w", className: "window-resize-handle edge-w" },
+      { direction: "ne", className: "window-resize-handle corner-ne" },
+      { direction: "nw", className: "window-resize-handle corner-nw" },
+      { direction: "se", className: "window-resize-handle corner-se" },
+      { direction: "sw", className: "window-resize-handle corner-sw" },
+    ];
+    return (
+      <div className="window-resize-layer" aria-hidden="true">
+        {handles.map((handle) => (
+          <div
+            key={handle.direction}
+            className={handle.className}
+            onPointerDown={(event) => {
+              void handleResizePointerDown(handle.direction, event);
+            }}
+          />
+        ))}
+      </div>
+    );
+  }
+
   function renderWindowControls() {
     return (
       <div className="window-controls-card">
@@ -4515,6 +4811,12 @@ function App() {
               </dl>
 
               <p className="node-detail-note">{displayStatusDetail(selectedOpenAi, clockNow)}</p>
+              <p className="node-detail-note node-detail-note--heuristic">
+                {uiText(
+                  "按当前实测：Codex / GPT-5.4 xhigh thinking 下，ChatGPT Plus 与 Team/Business 基本都可按 5h 满额 ≈ 7d 30% 理解。",
+                  "Empirical rule: under Codex / GPT-5.4 xhigh thinking, ChatGPT Plus and Team/Business can usually be read as 5h full quota ≈ 7d 30%.",
+                )}
+              </p>
               {selectedOpenAi.usageHistory?.length ? (
                 <div className="node-history">
                   <span className="section-tag">HISTORY</span>
@@ -4629,6 +4931,7 @@ function App() {
 
   return (
     <div className={`window-root ${isSettingsWindow ? "settings-window-root" : ""}`}>
+      {!isSettingsWindow && renderResizeHandles()}
       {isSettingsWindow ? (
         <>
           {renderSettingsTitlebar()}

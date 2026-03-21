@@ -29,6 +29,8 @@ contextBridge.exposeInMainWorld("desktopApi", {
   toggleMaximizeWindow: () => ipcRenderer.invoke("window:toggle-maximize"),
   closeWindow: () => ipcRenderer.invoke("window:close"),
   getWindowState: () => ipcRenderer.invoke("window:get-state"),
+  getWindowBounds: () => ipcRenderer.invoke("window:get-bounds"),
+  setWindowBounds: (bounds) => ipcRenderer.invoke("window:set-bounds", bounds),
   onStateUpdated: (callback) => {
     const listener = (_event, state) => callback(state);
     ipcRenderer.on("dashboard:state-updated", listener);

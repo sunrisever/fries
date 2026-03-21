@@ -354,6 +354,16 @@ export default function SettingsPage({
             <strong>{uiText("同步时间", "Synced at")}</strong>
             <p>{uiText("主显示用 recordedAt，详情里额外保留 sourceSyncedAt。", "Primary UI uses recordedAt while sourceSyncedAt stays available in details.")}</p>
           </article>
+          <article className="detail-card detail-card--wide">
+            <span>quotaHeuristic</span>
+            <strong>{uiText("窗口经验换算", "Quota heuristic")}</strong>
+            <p>
+              {uiText(
+                "当前实测经验：在 Codex / GPT-5.4 xhigh thinking 下，ChatGPT Plus 与 Team/Business 基本都可按 5h 满额 ≈ 7d 30% 理解。这是经验口径，不是官方硬规则。",
+                "Current empirical rule: under Codex / GPT-5.4 xhigh thinking, ChatGPT Plus and Team/Business can usually be interpreted as 5h full quota ≈ 7d 30%. This is a working heuristic, not an official hard limit.",
+              )}
+            </p>
+          </article>
         </div>
       </section>
 

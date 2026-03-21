@@ -80,9 +80,93 @@ function getTimelineLogFilePath() {
   return path.join(getDataDir(), "timeline-events.json");
 }
 
+function getMigrationReportFilePath() {
+  return path.join(getDataDir(), "migration-report.json");
+}
+
 function getMemoryFilePath() {
   const home = process.env.USERPROFILE || process.env.HOME || "";
   return path.join(home, ".codex", "memories", "config", "accounts.md");
+}
+
+async function mergeLegacyDataFiles() {
+  let mergedSnapshots = 0;
+  let copiedTimeline = false;
+  let copiedCache = false;
+  const currentSnapshotsDir = getSnapshotsDir();
+  const currentTimelineLogFile = getTimelineLogFilePath();
+  const currentSnapshotIndexCacheFile = getSnapshotIndexCacheFilePath();
+  const touchedLegacyRoots = [];
+
+  for (const legacyRoot of getLegacyUserDataRoots()) {
+    const legacyDataDir = path.join(legacyRoot, "data");
+    const legacySnapshotsDir = path.join(legacyDataDir, "snapshots");
+    const legacyTimelineLogFile = path.join(legacyDataDir, "timeline-events.json");
+    const legacySnapshotIndexCacheFile = path.join(legacyDataDir, "cache", "snapshot-index.json");
+
+    if (fssync.existsSync(legacySnapshotsDir)) {
+      try {
+        const entries = await fs.readdir(legacySnapshotsDir, { withFileTypes: true });
+        let rootMerged = false;
+        for (const entry of entries) {
+          if (!entry.isFile() || !entry.name.endsWith(".json")) {
+            continue;
+          }
+          const nextPath = path.join(currentSnapshotsDir, entry.name);
+          if (fssync.existsSync(nextPath)) {
+            continue;
+          }
+          await fs.copyFile(path.join(legacySnapshotsDir, entry.name), nextPath);
+          mergedSnapshots += 1;
+          rootMerged = true;
+        }
+        if (rootMerged) {
+          touchedLegacyRoots.push(legacyRoot);
+        }
+      } catch {
+        // ignore legacy snapshot merge failure
+      }
+    }
+
+    if (!fssync.existsSync(currentTimelineLogFile) && fssync.existsSync(legacyTimelineLogFile)) {
+      try {
+        await fs.copyFile(legacyTimelineLogFile, currentTimelineLogFile);
+        copiedTimeline = true;
+        touchedLegacyRoots.push(legacyRoot);
+      } catch {
+        // ignore legacy timeline migration failure
+      }
+    }
+
+    if (
+      !fssync.existsSync(currentSnapshotIndexCacheFile) &&
+      fssync.existsSync(legacySnapshotIndexCacheFile) &&
+      mergedSnapshots === 0
+    ) {
+      try {
+        await fs.copyFile(legacySnapshotIndexCacheFile, currentSnapshotIndexCacheFile);
+        copiedCache = true;
+        touchedLegacyRoots.push(legacyRoot);
+      } catch {
+        // ignore legacy cache migration failure
+      }
+    }
+  }
+
+  if (mergedSnapshots > 0 && fssync.existsSync(currentSnapshotIndexCacheFile)) {
+    try {
+      await fs.unlink(currentSnapshotIndexCacheFile);
+    } catch {
+      // ignore cache reset failure
+    }
+  }
+
+  return {
+    mergedSnapshots,
+    copiedTimeline,
+    copiedCache,
+    touchedLegacyRoots: Array.from(new Set(touchedLegacyRoots)),
+  };
 }
 
 async function ensureDataDirs() {
@@ -92,6 +176,7 @@ async function ensureDataDirs() {
     path.join(legacyRoot, "subscriptions.json"),
     path.join(legacyRoot, "dashboard-state.json"),
   ]);
+  let migratedStateFrom = null;
 
   await fs.mkdir(getUserDataRoot(), { recursive: true });
   await fs.mkdir(getDataDir(), { recursive: true });
@@ -107,6 +192,7 @@ async function ensureDataDirs() {
       }
       try {
         await fs.copyFile(legacyStateFile, nextStateFile);
+        migratedStateFrom = legacyStateFile;
         break;
       } catch {
         // ignore migration failure
@@ -117,8 +203,36 @@ async function ensureDataDirs() {
   if (!fssync.existsSync(nextStateFile) && fssync.existsSync(previousStateFile)) {
     try {
       await fs.copyFile(previousStateFile, nextStateFile);
+      migratedStateFrom = previousStateFile;
     } catch {
       // ignore migration failure
+    }
+  }
+
+  const migration = await mergeLegacyDataFiles();
+  if (
+    migratedStateFrom ||
+    migration.mergedSnapshots > 0 ||
+    migration.copiedTimeline ||
+    migration.copiedCache
+  ) {
+    const payload = {
+      generatedAt: new Date().toISOString(),
+      stateFile: nextStateFile,
+      migratedStateFrom,
+      mergedSnapshots: migration.mergedSnapshots,
+      copiedTimeline: migration.copiedTimeline,
+      copiedCache: migration.copiedCache,
+      touchedLegacyRoots: migration.touchedLegacyRoots,
+    };
+    try {
+      await fs.writeFile(
+        getMigrationReportFilePath(),
+        JSON.stringify(payload, null, 2),
+        "utf8",
+      );
+    } catch {
+      // ignore report write failure
     }
   }
 }
@@ -134,6 +248,7 @@ function getDataPaths() {
     memoryFile: getMemoryFilePath(),
     timelineLogFile: getTimelineLogFilePath(),
     timelineLogsDir: getTimelineLogsDir(),
+    migrationReportFile: getMigrationReportFilePath(),
   };
 }
 
@@ -471,6 +586,19 @@ function currentWindowState(targetWindow = mainWindow) {
   };
 }
 
+function currentWindowBounds(targetWindow = mainWindow) {
+  if (!targetWindow || targetWindow.isDestroyed()) {
+    return { x: 0, y: 0, width: 0, height: 0 };
+  }
+  const bounds = targetWindow.getBounds();
+  return {
+    x: bounds.x,
+    y: bounds.y,
+    width: bounds.width,
+    height: bounds.height,
+  };
+}
+
 function emitWindowState(targetWindow = mainWindow) {
   if (!targetWindow || targetWindow.isDestroyed()) {
     return;
@@ -502,6 +630,8 @@ function createBaseWindow(overrides = {}) {
     frame: false,
     transparent: true,
     backgroundColor: "#00000000",
+    resizable: true,
+    thickFrame: true,
     autoHideMenuBar: true,
     icon: getWindowIconPath(),
     webPreferences: {
@@ -782,6 +912,21 @@ if (hasSingleInstanceLock) {
       targetWindow.close();
     });
     ipcMain.handle("window:get-state", async (event) => currentWindowState(getTargetWindow(event)));
+    ipcMain.handle("window:get-bounds", async (event) => currentWindowBounds(getTargetWindow(event)));
+    ipcMain.handle("window:set-bounds", async (event, nextBounds) => {
+      const targetWindow = getTargetWindow(event);
+      if (!targetWindow) {
+        return currentWindowBounds(null);
+      }
+      const bounds = {
+        x: Number(nextBounds?.x ?? 0),
+        y: Number(nextBounds?.y ?? 0),
+        width: Math.max(1, Number(nextBounds?.width ?? 0)),
+        height: Math.max(1, Number(nextBounds?.height ?? 0)),
+      };
+      targetWindow.setBounds(bounds, false);
+      return currentWindowBounds(targetWindow);
+    });
     ipcMain.handle("window:open-settings", async () => {
       createSettingsWindow();
       return true;
