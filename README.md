@@ -111,9 +111,9 @@ Current packaged artifacts:
 
 Local packaging output:
 
-- Local `npm run pack:*` commands now write to `%USERPROFILE%\\Desktop\\Fries Releases` by default so the source repository stays slimmer.
-- CI packaging still writes to the in-repo `release/` directory because GitHub Actions needs a predictable artifact path.
-- If you want to override the local output path, set `FRIES_OUTPUT_DIR` before running the pack script.
+- Local `npm run pack:*` commands write to the in-repo `release/` directory by default.
+- CI packaging also writes to the same `release/` directory so local runs and GitHub Actions stay aligned.
+- If you want to override the output path temporarily, set `FRIES_OUTPUT_DIR` before running the pack script.
 
 Release channels:
 

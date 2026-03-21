@@ -111,9 +111,9 @@ npm run release:beta
 
 本地打包输出：
 
-- 现在本地执行 `npm run pack:*` 时，产物默认会输出到 `%USERPROFILE%\\Desktop\\Fries Releases`，这样源码仓库本身不会越来越胖。
-- GitHub Actions 为了方便收集 artifacts，仍然会把 CI 产物写到仓库内的 `release/` 目录。
-- 如果你想改本地输出位置，可以先设置环境变量 `FRIES_OUTPUT_DIR` 再运行打包脚本。
+- 现在本地执行 `npm run pack:*` 时，产物默认会输出到仓库内的 `release/` 目录。
+- GitHub Actions 也会继续写到同一个 `release/` 目录，这样本地和 CI 的产物路径保持一致。
+- 如果你想临时改本地输出位置，可以先设置环境变量 `FRIES_OUTPUT_DIR` 再运行打包脚本。
 
 发布渠道现在分成三层：
 

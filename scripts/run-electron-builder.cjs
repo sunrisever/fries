@@ -1,5 +1,4 @@
 const fs = require("fs");
-const os = require("os");
 const path = require("path");
 const { spawnSync } = require("child_process");
 
@@ -27,12 +26,7 @@ function resolveOutputDir(explicitOutput) {
     return path.resolve(repoRoot, explicitOutput);
   }
 
-  const isCi = process.env.CI === "true" || process.env.GITHUB_ACTIONS === "true";
-  if (isCi) {
-    return path.join(repoRoot, "release");
-  }
-
-  return path.join(os.homedir(), "Desktop", "Fries Releases");
+  return path.join(repoRoot, "release");
 }
 
 function main() {
