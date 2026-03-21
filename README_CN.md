@@ -109,6 +109,12 @@ npm run release:beta
 - Windows 免安装运行目录：`release/win-unpacked/`
 - macOS zip / dmg：`Fries-<version>-arm64.zip` / `Fries-<version>-arm64.dmg`
 
+本地打包输出：
+
+- 现在本地执行 `npm run pack:*` 时，产物默认会输出到 `%USERPROFILE%\\Desktop\\Fries Releases`，这样源码仓库本身不会越来越胖。
+- GitHub Actions 为了方便收集 artifacts，仍然会把 CI 产物写到仓库内的 `release/` 目录。
+- 如果你想改本地输出位置，可以先设置环境变量 `FRIES_OUTPUT_DIR` 再运行打包脚本。
+
 发布渠道现在分成三层：
 
 - 本地 Windows 打包脚本仍然使用 `--publish never`，所以本机执行时不会误上传。
@@ -121,7 +127,8 @@ npm run release:beta
 - macOS 通过 CI 产出 `dmg` / `zip`；如果配置了 Apple 签名 secrets，workflow 已经预留自动签名与 notarization。若 secrets 缺失，CI 会继续回退到未签名 beta 产物。
 - Linux 这轮先不作为正式发布目标。
 
-签名 / notarization 的预留说明见：`docs/publishing/MACOS_SIGNING.md`
+签名 / notarization 的预留说明见：`docs/publishing/MACOS_SIGNING.md`  
+中文版配置说明见：`docs/publishing/MACOS_SIGNING_CN.md`
 
 ## 当前版本
 

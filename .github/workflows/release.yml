@@ -24,10 +24,10 @@ jobs:
         include:
           - os: windows-latest
             artifact_name: windows
-            pack_script: pack:release
+            pack_script: pack:ci:release
           - os: macos-latest
             artifact_name: macos
-            pack_script: pack:mac
+            pack_script: pack:ci:mac
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
     steps:
@@ -71,7 +71,7 @@ jobs:
         run: |
           if [ "${{ matrix.os }}" = "macos-latest" ]; then
             if [ -n "$CSC_LINK" ] || [ -n "$APPLE_API_KEY_ID" ] || [ -n "$APPLE_ID" ]; then
-              npm run pack:mac
+              npm run ${{ matrix.pack_script }}
             else
               npm run build
               CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --publish never --mac zip dmg --config.mac.identity=null

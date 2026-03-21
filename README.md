@@ -109,6 +109,12 @@ Current packaged artifacts:
 - Windows unpacked dir: `release/win-unpacked/`
 - macOS zip / dmg: `Fries-<version>-arm64.zip` / `Fries-<version>-arm64.dmg`
 
+Local packaging output:
+
+- Local `npm run pack:*` commands now write to `%USERPROFILE%\\Desktop\\Fries Releases` by default so the source repository stays slimmer.
+- CI packaging still writes to the in-repo `release/` directory because GitHub Actions needs a predictable artifact path.
+- If you want to override the local output path, set `FRIES_OUTPUT_DIR` before running the pack script.
+
 Release channels:
 
 - Local packaging on Windows still uses `--publish never`, so running scripts locally never uploads anything by accident.

@@ -12,5 +12,6 @@ This folder contains maintainer-facing release material for Fries.
 - `RELEASE_NOTES_0.4.2-beta.md`: archived macOS polish + signing-prep beta notes
 - `RELEASE_NOTES_0.4.3-beta.md`: current cleaner-release workflow beta notes
 - `MACOS_SIGNING.md`: Apple signing / notarization preparation guide
+- `MACOS_SIGNING_CN.md`: 中文版 Apple 签名 / notarization 配置指南
 
 These files are intentionally kept out of the repository root so the project homepage stays focused on end users.
