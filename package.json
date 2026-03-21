@@ -23,6 +23,7 @@
     "test": "node --test tests/self-check.test.cjs",
     "check:examples": "node scripts/check-examples.cjs",
     "check:release": "node scripts/check-release.cjs",
+    "setup:macos-secrets": "powershell -ExecutionPolicy Bypass -File scripts/setup-macos-secrets.ps1",
     "self-check": "node scripts/run-self-check.cjs",
     "repair:history": "node scripts/repair-history-signatures.cjs",
     "check": "npm run typecheck && npm run test && npm run check:examples && npm run check:release && npm run build",
