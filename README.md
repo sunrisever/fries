@@ -124,7 +124,9 @@ Release channels:
 Multi-platform note:
 
 - Windows ships as installer, portable, and unpacked directory.
-- macOS ships in CI as `dmg` / `zip`; when Apple signing secrets are configured, the workflow is prepared to sign and notarize builds automatically. Without those secrets, CI still falls back to unsigned beta artifacts.
+- macOS currently ships in CI as **unsigned beta** `dmg` / `zip` artifacts.
+- When Apple signing secrets are configured, the workflow is prepared to sign and notarize builds automatically.
+- Until those Apple credentials are available, macOS artifacts should be treated as preview/beta downloads rather than polished end-user signed releases.
 - Linux is intentionally not an official release target for now.
 
 For signing/notarization setup details, see `docs/publishing/MACOS_SIGNING.md`.
@@ -144,6 +146,7 @@ For signing/notarization setup details, see `docs/publishing/MACOS_SIGNING.md`.
 - GitHub Actions release matrix (Windows + macOS): `.github/workflows/release.yml`
 - Maintainer release docs: `docs/publishing/`
 - macOS signing / notarization prep: `docs/publishing/MACOS_SIGNING.md`
+- Current macOS channel: unsigned beta only
 - Suggested GitHub topics:
   `codex`, `claude-code`, `opencode`, `openclaw`, `agents-md`, `agent-skill`, `claude-code-skill`
 

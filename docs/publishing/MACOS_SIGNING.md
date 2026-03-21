@@ -8,6 +8,7 @@ This project is prepared for Apple signing and notarization, but it does not har
 
 As of `2026-03-21`, the repository currently has **no Apple signing secrets configured**.
 Without these secrets, CI will still build unsigned beta `zip` / `dmg` artifacts for macOS.
+That means the current public macOS channel should be described as **unsigned beta / preview**, not as a fully polished signed release.
 
 ## Current behavior
 

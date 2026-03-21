@@ -124,7 +124,9 @@ npm run release:beta
 多平台说明：
 
 - Windows 提供安装包、便携版和免安装目录。
-- macOS 通过 CI 产出 `dmg` / `zip`；如果配置了 Apple 签名 secrets，workflow 已经预留自动签名与 notarization。若 secrets 缺失，CI 会继续回退到未签名 beta 产物。
+- macOS 当前通过 CI 提供的是 **未签名 beta** `dmg / zip`。
+- 如果后续配置了 Apple 签名 secrets，workflow 已经预留自动签名与 notarization。
+- 在 Apple 凭据尚未配置之前，macOS 产物应理解为预览 / beta 下载，而不是面向普通用户的正式签名版。
 - Linux 这轮先不作为正式发布目标。
 
 签名 / notarization 的预留说明见：`docs/publishing/MACOS_SIGNING.md`  
@@ -145,6 +147,7 @@ npm run release:beta
 - GitHub Actions 发布矩阵（Windows + macOS）：`.github/workflows/release.yml`
 - 维护者发布文档：`docs/publishing/`
 - macOS 签名 / notarization 预留：`docs/publishing/MACOS_SIGNING.md`
+- 当前 macOS 渠道：未签名 beta
 - 建议 GitHub topics：
   `codex`, `claude-code`, `opencode`, `openclaw`, `agents-md`, `agent-skill`, `claude-code-skill`
 

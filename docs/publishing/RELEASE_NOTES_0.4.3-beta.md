@@ -20,5 +20,5 @@ This beta cleans up the public release surface and rolls in the latest local syn
 ## Notes
 
 - Public release pages are intentionally slimmer now; maintenance-only files such as `builder-debug.yml` and `*.blockmap` are no longer meant for end users
-- macOS artifacts may still be unsigned unless Apple signing secrets are configured
+- macOS artifacts in this beta are unsigned unless Apple signing secrets are configured, so they should be treated as preview builds rather than polished end-user releases
 - Windows remains the primary local packaging target
