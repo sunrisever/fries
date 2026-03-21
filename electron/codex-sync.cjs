@@ -126,6 +126,8 @@ function parseTokenCountFromLine(rawLine) {
 async function readLatestTokenCount() {
   const candidateGroups = await Promise.all(SESSION_ROOTS.map((root) => listJsonlFiles(root)));
   const files = candidateGroups.flat().sort((left, right) => right.mtimeMs - left.mtimeMs);
+  let newestEvent = null;
+  let newestEventTime = -Infinity;
 
   for (const candidate of files) {
     let raw = "";
@@ -138,13 +140,19 @@ async function readLatestTokenCount() {
     const lines = raw.split(/\r?\n/);
     for (let index = lines.length - 1; index >= 0; index -= 1) {
       const event = parseTokenCountFromLine(lines[index]);
-      if (event) {
-        return event;
+      if (!event) {
+        continue;
+      }
+
+      const eventTime = normalizeDateTimeValue(event.timestamp) ?? candidate.mtimeMs;
+      if (eventTime >= newestEventTime) {
+        newestEvent = event;
+        newestEventTime = eventTime;
       }
     }
   }
 
-  return null;
+  return newestEvent;
 }
 
 async function readAuthSnapshot() {

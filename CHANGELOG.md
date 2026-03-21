@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 0.4.3-beta
+
+- Cleaned the GitHub release workflow so public release pages only keep end-user assets instead of debug and blockmap noise.
+- Made release notes resolution tag-driven, which removes the previous hard-coded version dependency in the publish workflow.
+- Rolled in the latest Codex sync freshness guard and OpenAI seat labeling fixes so this beta matches the current local desktop behavior.
+
 ## 0.4.2-beta
 
 - Added macOS-specific titlebar polish with traffic-light window controls and a cleaner custom desktop shell layout.

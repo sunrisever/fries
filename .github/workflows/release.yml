@@ -72,11 +72,36 @@ jobs:
             npm run ${{ matrix.pack_script }}
           fi
 
+      - name: Prepare workflow artifacts
+        shell: bash
+        run: |
+          mkdir -p release-ci
+          shopt -s nullglob
+          if [ "${{ matrix.os }}" = "macos-latest" ]; then
+            patterns=(
+              "release/Fries-*.zip"
+              "release/Fries-*.dmg"
+              "release/latest-mac.yml"
+            )
+          else
+            patterns=(
+              "release/Fries-Setup-*.exe"
+              "release/Fries-Portable-*.exe"
+              "release/latest.yml"
+            )
+          fi
+          for pattern in "${patterns[@]}"; do
+            for file in $pattern; do
+              cp "$file" release-ci/
+            done
+          done
+          ls -al release-ci
+
       - name: Upload workflow artifacts
         uses: actions/upload-artifact@v4
         with:
           name: fries-${{ matrix.artifact_name }}
-          path: release/*
+          path: release-ci/*
           if-no-files-found: error
 
   publish:
@@ -93,9 +118,40 @@ jobs:
           path: release-assets
           merge-multiple: true
 
+      - name: Prepare release assets
+        shell: bash
+        run: |
+          mkdir -p release-final
+          shopt -s nullglob
+          patterns=(
+            "release-assets/Fries-Setup-*.exe"
+            "release-assets/Fries-Portable-*.exe"
+            "release-assets/latest.yml"
+            "release-assets/latest-mac.yml"
+            "release-assets/Fries-*.zip"
+            "release-assets/Fries-*.dmg"
+          )
+          for pattern in "${patterns[@]}"; do
+            for file in $pattern; do
+              cp "$file" release-final/
+            done
+          done
+          ls -al release-final
+
+      - name: Resolve release notes
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          NOTES_PATH="docs/publishing/RELEASE_NOTES_${VERSION}.md"
+          if [ -f "$NOTES_PATH" ]; then
+            echo "RELEASE_NOTES_PATH=$NOTES_PATH" >> "$GITHUB_ENV"
+          else
+            echo "RELEASE_NOTES_PATH=CHANGELOG.md" >> "$GITHUB_ENV"
+          fi
+
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           prerelease: true
-          body_path: docs/publishing/RELEASE_NOTES_0.4.2-beta.md
-          files: release-assets/*
+          body_path: ${{ env.RELEASE_NOTES_PATH }}
+          files: release-final/*

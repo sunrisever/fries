@@ -43,7 +43,7 @@ const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const TimelinePage = lazy(() => import("./pages/TimelinePage"));
 
 const STORAGE_KEY = "ai-account-console.dashboard.v1";
-const APP_VERSION = "0.4.2-beta";
+const APP_VERSION = "0.4.3-beta";
 const APP_CHINESE_NAME = "薯条";
 const DATA_YEAR_MIN = 2026;
 const DATA_YEAR_MAX = 2036;
@@ -428,6 +428,10 @@ function snapshotRecordedTime(snapshot?: LiveUsageSnapshot) {
   );
 }
 
+function snapshotFreshnessTime(snapshot?: LiveUsageSnapshot) {
+  return snapshotSourceTime(snapshot) ?? snapshotRecordedTime(snapshot) ?? 0;
+}
+
 function subscriptionTime(snapshot?: Pick<LiveUsageSnapshot, "subscriptionActiveUntil" | "subscriptionActiveUntilMs">) {
   return (
     snapshot?.subscriptionActiveUntilMs ??
@@ -672,17 +676,23 @@ function mergeStateWithSnapshotRecords(state: DashboardState, snapshotRecords: S
 }
 
 function compareUsageHistoryEntry(left: UsageHistoryEntry, right: UsageHistoryEntry) {
-  const leftTime =
+  const leftFreshness = snapshotFreshnessTime(left.snapshot);
+  const rightFreshness = snapshotFreshnessTime(right.snapshot);
+  if (leftFreshness !== rightFreshness) {
+    return rightFreshness - leftFreshness;
+  }
+
+  const leftRecorded =
     left.recordedAtMs ??
     parseDateTimeValue(left.recordedAt) ??
     snapshotRecordedTime(left.snapshot) ??
     0;
-  const rightTime =
+  const rightRecorded =
     right.recordedAtMs ??
     parseDateTimeValue(right.recordedAt) ??
     snapshotRecordedTime(right.snapshot) ??
     0;
-  return rightTime - leftTime;
+  return rightRecorded - leftRecorded;
 }
 
 function snapshotRouteKey(
@@ -1481,7 +1491,13 @@ function pickRecoverySnapshot(account: AccountRecord | undefined, incomingSnapsh
   const matched = candidates
     .filter((snapshot) => snapshotBelongsToAccount(account, snapshot))
     .filter((snapshot) => !normalizedIncoming || !sameLiveUsage(snapshot, normalizedIncoming))
-    .sort((left, right) => (snapshotRecordedTime(right) ?? 0) - (snapshotRecordedTime(left) ?? 0));
+    .sort((left, right) => {
+      const freshnessDiff = snapshotFreshnessTime(right) - snapshotFreshnessTime(left);
+      if (freshnessDiff !== 0) {
+        return freshnessDiff;
+      }
+      return (snapshotRecordedTime(right) ?? 0) - (snapshotRecordedTime(left) ?? 0);
+    });
 
   if (matched.length > 0) {
     return matched[0];
@@ -1502,9 +1518,30 @@ function latestKnownSnapshot(account?: AccountRecord) {
 
   const matched = candidates
     .filter((snapshot) => snapshotBelongsToAccount(account, snapshot))
-    .sort((left, right) => (snapshotRecordedTime(right) ?? 0) - (snapshotRecordedTime(left) ?? 0));
+    .sort((left, right) => {
+      const freshnessDiff = snapshotFreshnessTime(right) - snapshotFreshnessTime(left);
+      if (freshnessDiff !== 0) {
+        return freshnessDiff;
+      }
+      return (snapshotRecordedTime(right) ?? 0) - (snapshotRecordedTime(left) ?? 0);
+    });
 
   return matched[0];
+}
+
+function isSnapshotSourceRegression(
+  previousSnapshot: LiveUsageSnapshot | undefined,
+  incomingSnapshot: LiveUsageSnapshot | undefined,
+  toleranceMs = 90_000,
+) {
+  const previousSourceTime = snapshotSourceTime(previousSnapshot);
+  const incomingSourceTime = snapshotSourceTime(incomingSnapshot);
+
+  if (typeof previousSourceTime !== "number" || typeof incomingSourceTime !== "number") {
+    return false;
+  }
+
+  return incomingSourceTime + toleranceMs < previousSourceTime;
 }
 
 function resolveLiveUsageSnapshot(snapshot?: LiveUsageSnapshot, nowMs = Date.now()) {
@@ -3062,6 +3099,21 @@ function App() {
         return;
       }
 
+      const previousTargetSnapshot = latestKnownSnapshot(currentTarget);
+      if (isSnapshotSourceRegression(previousTargetSnapshot, snapshot)) {
+        const previousSourceLabel = syncLabel(previousTargetSnapshot) ?? "未记录";
+        const incomingSourceLabel = syncLabel(snapshot) ?? "未记录";
+        setState((currentState) =>
+          pushActivity(
+            currentState,
+            "note",
+            "已跳过过时快照",
+            `${getDisplayTitle(currentTarget)} 收到一条源时间倒退的旧快照（${incomingSourceLabel}），当前较新记录是 ${previousSourceLabel}，这次未写入。`,
+          ),
+        );
+        return;
+      }
+
       const nextActive = applyLiveUsage(currentTarget, snapshot);
       const shouldSwitchActive = activeId !== targetId;
       const noChange =
@@ -3090,7 +3142,7 @@ function App() {
         return;
       }
 
-      const previousTargetSnapshot = latestKnownSnapshot(committed.currentTarget);
+      const previousCommittedTargetSnapshot = latestKnownSnapshot(committed.currentTarget);
       let nextState = committed.updated;
       const previousActive = activeId ? current.accounts.find((account) => account.id === activeId) : undefined;
       const syncDetail = `${getDisplayTitle(committed.nextTarget)} · 5h 剩余 ${formatPercent(
@@ -3114,7 +3166,7 @@ function App() {
       }
       const forcedDepletionRecord = await forceSnapshotOnFiveHourDepletion(
         committed.nextTarget,
-        previousTargetSnapshot,
+        previousCommittedTargetSnapshot,
         snapshot,
       );
 
@@ -3248,11 +3300,21 @@ function App() {
 
   const titleMap = useMemo(() => {
     const nextMap = new Map<string, string>();
-    openaiAccounts.forEach((account, index) => {
-      nextMap.set(
-        account.id,
-        account.id === "openai-old-fallback" ? "Codex Plus" : `Codex Team ${index + 1}`,
-      );
+    let teamIndex = 0;
+    openaiAccounts.forEach((account) => {
+      const normalizedPlan = (account.plan ?? "").toLowerCase();
+      const isPlusSeat =
+        account.id === "openai-old-fallback" ||
+        normalizedPlan.includes("plus") ||
+        normalizedPlan === "chatgpt plus";
+
+      if (isPlusSeat) {
+        nextMap.set(account.id, "Codex Plus");
+        return;
+      }
+
+      teamIndex += 1;
+      nextMap.set(account.id, `Codex Team ${teamIndex}`);
     });
 
     let claudeIndex = 0;

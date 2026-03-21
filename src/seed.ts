@@ -221,7 +221,7 @@ export const dashboardSeed: DashboardState = {
       provider: "OpenAI",
       accountLabel: "Codex Plus",
       email: "xnlyiyecue23495@outlook.com",
-      plan: "ChatGPT Team",
+      plan: "ChatGPT Plus",
       cluster: "openai",
       status: "paused",
       priority: 5,
@@ -237,7 +237,7 @@ export const dashboardSeed: DashboardState = {
       liveUsage: {
         provider: "OpenAI",
         accountEmail: "xnlyiyecue23495@outlook.com",
-        plan: "ChatGPT Team",
+        plan: "ChatGPT Plus",
         fiveHour: {
           usedPercent: 0,
           remainingPercent: 100,

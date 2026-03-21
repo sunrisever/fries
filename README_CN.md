@@ -125,10 +125,10 @@ npm run release:beta
 
 ## 当前版本
 
-- 当前版本号：`0.4.2-beta`
+- 当前版本号：`0.4.3-beta`
 - 产品名：`Fries / 薯条`
-- Windows 安装包文件名：`Fries-Setup-0.4.2-beta-x64.exe`
-- Windows 便携版文件名：`Fries-Portable-0.4.2-beta-x64.exe`
+- Windows 安装包文件名：`Fries-Setup-0.4.3-beta-x64.exe`
+- Windows 便携版文件名：`Fries-Portable-0.4.3-beta-x64.exe`
 
 ## 开源发布建议
 
