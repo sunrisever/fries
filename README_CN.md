@@ -107,7 +107,7 @@ npm run release:beta
 - Windows 安装包：`Fries-Setup-<version>-x64.exe`
 - Windows 便携版：`Fries-Portable-<version>-x64.exe`
 - Windows 免安装运行目录：`release/win-unpacked/`
-- macOS 未签名 zip / dmg：`Fries-<version>-arm64.zip` / `Fries-<version>-arm64.dmg`
+- macOS zip / dmg：`Fries-<version>-arm64.zip` / `Fries-<version>-arm64.dmg`
 
 发布渠道现在分成三层：
 
@@ -118,15 +118,17 @@ npm run release:beta
 多平台说明：
 
 - Windows 提供安装包、便携版和免安装目录。
-- macOS 通过 CI 产出未签名 `dmg` / `zip`；如果要面向普通用户稳定分发，通常还需要 Apple 签名 / notarization。
+- macOS 通过 CI 产出 `dmg` / `zip`；如果配置了 Apple 签名 secrets，workflow 已经预留自动签名与 notarization。若 secrets 缺失，CI 会继续回退到未签名 beta 产物。
 - Linux 这轮先不作为正式发布目标。
+
+签名 / notarization 的预留说明见：`docs/publishing/MACOS_SIGNING.md`
 
 ## 当前版本
 
-- 当前版本号：`0.4.1-beta`
+- 当前版本号：`0.4.2-beta`
 - 产品名：`Fries / 薯条`
-- Windows 安装包文件名：`Fries-Setup-0.4.1-beta-x64.exe`
-- Windows 便携版文件名：`Fries-Portable-0.4.1-beta-x64.exe`
+- Windows 安装包文件名：`Fries-Setup-0.4.2-beta-x64.exe`
+- Windows 便携版文件名：`Fries-Portable-0.4.2-beta-x64.exe`
 
 ## 开源发布建议
 
@@ -135,6 +137,7 @@ npm run release:beta
 - GitHub Actions CI：`.github/workflows/ci.yml`
 - GitHub Actions 发布矩阵（Windows + macOS）：`.github/workflows/release.yml`
 - 维护者发布文档：`docs/publishing/`
+- macOS 签名 / notarization 预留：`docs/publishing/MACOS_SIGNING.md`
 - 建议 GitHub topics：
   `codex`, `claude-code`, `opencode`, `openclaw`, `agents-md`, `agent-skill`, `claude-code-skill`
 

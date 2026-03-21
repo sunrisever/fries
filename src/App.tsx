@@ -43,7 +43,7 @@ const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const TimelinePage = lazy(() => import("./pages/TimelinePage"));
 
 const STORAGE_KEY = "ai-account-console.dashboard.v1";
-const APP_VERSION = "0.4.1-beta";
+const APP_VERSION = "0.4.2-beta";
 const APP_CHINESE_NAME = "薯条";
 const DATA_YEAR_MIN = 2026;
 const DATA_YEAR_MAX = 2036;
@@ -3243,6 +3243,8 @@ function App() {
     [clockNow, openaiAccounts],
   );
   const desktopMode = window.desktopMeta?.isPackaged ? "已打包" : "开发模式";
+  const desktopPlatform = window.desktopMeta?.platform ?? "web";
+  const isMacPlatform = desktopPlatform === "darwin";
 
   const titleMap = useMemo(() => {
     const nextMap = new Map<string, string>();
@@ -4440,27 +4442,41 @@ function App() {
   }
 
   function renderWindowControls() {
+    const controls = isMacPlatform
+      ? [
+          { key: "close", className: "close", label: uiText("关闭", "Close"), onClick: handleWindowClose },
+          { key: "minimize", className: "minimize", label: uiText("最小化", "Minimize"), onClick: handleWindowMinimize },
+          {
+            key: "maximize",
+            className: `maximize ${windowState.isMaximized ? "is-maximized" : ""}`,
+            label: windowState.isMaximized ? uiText("还原", "Restore") : uiText("最大化", "Maximize"),
+            onClick: handleWindowToggleMaximize,
+          },
+        ]
+      : [
+          { key: "minimize", className: "minimize", label: uiText("最小化", "Minimize"), onClick: handleWindowMinimize },
+          {
+            key: "maximize",
+            className: `maximize ${windowState.isMaximized ? "is-maximized" : ""}`,
+            label: windowState.isMaximized ? uiText("还原", "Restore") : uiText("最大化", "Maximize"),
+            onClick: handleWindowToggleMaximize,
+          },
+          { key: "close", className: "close", label: uiText("关闭", "Close"), onClick: handleWindowClose },
+        ];
+
     return (
-      <div className="window-controls-card">
-        <div className="window-controls">
-          <button
-            className="window-control minimize"
-            type="button"
-            aria-label="最小化"
-            onClick={handleWindowMinimize}
-          />
-          <button
-            className={`window-control maximize ${windowState.isMaximized ? "is-maximized" : ""}`}
-            type="button"
-            aria-label={windowState.isMaximized ? "还原" : "最大化"}
-            onClick={handleWindowToggleMaximize}
-          />
-          <button
-            className="window-control close"
-            type="button"
-            aria-label="关闭"
-            onClick={handleWindowClose}
-          />
+      <div className={`window-controls-card ${isMacPlatform ? "mac-window-controls-card" : ""}`}>
+        <div className={`window-controls ${isMacPlatform ? "mac-window-controls" : ""}`}>
+          {controls.map((control) => (
+            <button
+              key={control.key}
+              className={`window-control ${control.className} ${isMacPlatform ? "traffic-light" : ""}`}
+              type="button"
+              aria-label={control.label}
+              title={control.label}
+              onClick={control.onClick}
+            />
+          ))}
         </div>
       </div>
     );
@@ -4468,12 +4484,13 @@ function App() {
 
   function renderCloseOnlyWindowControls() {
     return (
-      <div className="window-controls-card">
-        <div className="window-controls">
+      <div className={`window-controls-card ${isMacPlatform ? "mac-window-controls-card" : ""}`}>
+        <div className={`window-controls ${isMacPlatform ? "mac-window-controls" : ""}`}>
           <button
-            className="window-control close"
+            className={`window-control close ${isMacPlatform ? "traffic-light" : ""}`}
             type="button"
-            aria-label="关闭"
+            aria-label={uiText("关闭", "Close")}
+            title={uiText("关闭", "Close")}
             onClick={handleWindowClose}
           />
         </div>
@@ -4482,6 +4499,38 @@ function App() {
   }
 
   function renderMainTitlebar() {
+    if (isMacPlatform) {
+      return (
+        <header className="window-titlebar mac-window-titlebar">
+          <div className="titlebar-side titlebar-side-left">{renderWindowControls()}</div>
+          <div className="window-drag-region mac-window-drag-region">
+            <div className="window-title-card mac-window-title-card">
+              <div className="window-title-stack">
+                <span className="window-title-eyebrow">FRIES</span>
+                <strong>{state.profile.title}</strong>
+                <span className="window-title-subtext">{getDisplayTitle(activeAccount)}</span>
+              </div>
+            </div>
+          </div>
+          <div className="titlebar-side titlebar-side-right">
+            <div className="window-action-card mac-window-action-card">
+              <button
+                className="window-action-button icon-only"
+                type="button"
+                onClick={handleOpenSettingsWindow}
+                aria-label={uiText("打开设置", "Open settings")}
+                title={uiText("打开设置", "Open settings")}
+              >
+                <span className="window-gear-icon" aria-hidden="true">
+                  ⚙
+                </span>
+              </button>
+            </div>
+          </div>
+        </header>
+      );
+    }
+
     return (
       <header className="window-titlebar">
         <div className="window-drag-region">
@@ -4512,6 +4561,26 @@ function App() {
   }
 
   function renderSettingsTitlebar() {
+    if (isMacPlatform) {
+      return (
+        <header className="window-titlebar settings-titlebar mac-window-titlebar mac-settings-titlebar">
+          <div className="titlebar-side titlebar-side-left">{renderCloseOnlyWindowControls()}</div>
+          <div className="window-drag-region mac-window-drag-region">
+            <div className="window-title-card mac-window-title-card">
+              <div className="window-title-stack">
+                <span className="window-title-eyebrow">SETTINGS</span>
+                <strong>{uiText("设置", "Settings")}</strong>
+                <span className="window-title-subtext">
+                  {uiText("同步、主题、数据与账号结构", "Sync, themes, data and account schema")}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="titlebar-side titlebar-side-right titlebar-side-spacer" aria-hidden="true" />
+        </header>
+      );
+    }
+
     return (
       <header className="window-titlebar settings-titlebar">
         <div className="window-drag-region">
@@ -4930,7 +4999,10 @@ function App() {
   }
 
   return (
-    <div className={`window-root ${isSettingsWindow ? "settings-window-root" : ""}`}>
+    <div
+      className={`window-root platform-${desktopPlatform} ${isSettingsWindow ? "settings-window-root" : ""}`}
+      data-platform={desktopPlatform}
+    >
       {!isSettingsWindow && renderResizeHandles()}
       {isSettingsWindow ? (
         <>

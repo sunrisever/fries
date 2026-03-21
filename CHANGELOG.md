@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 0.4.2-beta
+
+- Added macOS-specific titlebar polish with traffic-light window controls and a cleaner custom desktop shell layout.
+- Prepared Apple signing / notarization hooks, entitlements, and CI secret plumbing while keeping unsigned macOS fallback artifacts available.
+- Added maintainer-facing macOS signing docs so future public macOS distribution can move toward a smoother install story.
+
 ## 0.4.1-beta
 
 - Narrowed the official release matrix to Windows + macOS so the public release story stays aligned with what is actually maintained.

@@ -35,8 +35,24 @@ jobs:
       - name: Install
         run: npm ci
 
+      - name: Prepare Apple API key
+        if: matrix.os == 'macos-latest' && secrets.APPLE_API_KEY_P8_BASE64 != ''
+        shell: bash
+        run: |
+          KEY_PATH="$RUNNER_TEMP/AuthKey_${{ secrets.APPLE_API_KEY_ID }}.p8"
+          echo "${{ secrets.APPLE_API_KEY_P8_BASE64 }}" | base64 --decode > "$KEY_PATH"
+          echo "APPLE_API_KEY_PATH=$KEY_PATH" >> "$GITHUB_ENV"
+
       - name: Build artifacts
         run: npm run ${{ matrix.pack_script }}
+        env:
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
 
       - name: Upload workflow artifacts
         uses: actions/upload-artifact@v4
@@ -63,5 +79,5 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           prerelease: true
-          body_path: docs/publishing/RELEASE_NOTES_0.4.1-beta.md
+          body_path: docs/publishing/RELEASE_NOTES_0.4.2-beta.md
           files: release-assets/*

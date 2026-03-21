@@ -22,6 +22,7 @@ async function main() {
   const agents = await read(path.join(repoRoot, "AGENTS.md"));
   const claude = await read(path.join(repoRoot, "CLAUDE.md"));
   const releaseWorkflow = await read(path.join(repoRoot, ".github", "workflows", "release.yml"));
+  const macSigningDoc = await read(path.join(repoRoot, "docs", "publishing", "MACOS_SIGNING.md"));
   const releaseNotes = await read(path.join(repoRoot, "docs", "publishing", `RELEASE_NOTES_${packageJson.version}.md`));
 
   const version = packageJson.version;
@@ -40,11 +41,17 @@ async function main() {
   expectIncludes(readmeCn, "npm run check", "README_CN.md 缺少 npm run check。");
   expectIncludes(readme, "npm run self-check", "README.md 缺少 npm run self-check。");
   expectIncludes(readmeCn, "npm run self-check", "README_CN.md 缺少 npm run self-check。");
+  expectIncludes(readme, "MACOS_SIGNING.md", "README.md 缺少 macOS 签名说明入口。");
+  expectIncludes(readmeCn, "MACOS_SIGNING.md", "README_CN.md 缺少 macOS 签名说明入口。");
   expectIncludes(sampleReadme, "subscriptions.example.json", "示例数据 README 仍在引用旧文件名。");
   expectIncludes(changelog, version, "CHANGELOG.md 没有当前版本记录。");
   expectIncludes(releaseWorkflow, "softprops/action-gh-release", "release workflow 缺少 GitHub Release 上传逻辑。");
   expectIncludes(releaseWorkflow, "windows-latest", "release workflow 缺少 Windows 构建。");
   expectIncludes(releaseWorkflow, "macos-latest", "release workflow 缺少 macOS 构建。");
+  expectIncludes(releaseWorkflow, "APPLE_API_KEY_ID", "release workflow 缺少 Apple notarization secrets 预留。");
+  expectIncludes(releaseWorkflow, "CSC_LINK", "release workflow 缺少 macOS 签名证书 secrets 预留。");
+  expectIncludes(macSigningDoc, "APPLE_API_KEY_P8_BASE64", "MACOS_SIGNING.md 缺少 API key secrets 说明。");
+  expectIncludes(macSigningDoc, "APPLE_ID", "MACOS_SIGNING.md 缺少 Apple ID 兜底说明。");
   expectIncludes(releaseNotes, version, "当前版本的 release notes 没有同步版本号。");
   expectIncludes(agents, "subscriptions.json", "AGENTS.md 还在引用旧状态文件名。");
   expectIncludes(claude, "subscriptions.json", "CLAUDE.md 还在引用旧状态文件名。");

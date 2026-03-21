@@ -1,7 +1,7 @@
 {
   "name": "fries",
   "private": true,
-  "version": "0.4.1-beta",
+  "version": "0.4.2-beta",
   "description": "薯条 | Fries",
   "author": "sunrisever",
   "license": "MIT",
@@ -44,6 +44,7 @@
       "output": "release",
       "buildResources": "build"
     },
+    "afterSign": "scripts/notarize.cjs",
     "files": [
       "dist/**/*",
       "electron/**/*",
@@ -86,6 +87,10 @@
       "artifactName": "Fries-${version}-${arch}.${ext}",
       "icon": "build/icon.png",
       "category": "public.app-category.productivity",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.inherit.plist",
       "target": [
         "zip",
         "dmg"
@@ -98,6 +103,7 @@
     "react-dom": "^19.2.4"
   },
   "devDependencies": {
+    "@electron/notarize": "^3.1.1",
     "@types/node": "^25.5.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

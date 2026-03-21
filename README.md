@@ -107,7 +107,7 @@ Current packaged artifacts:
 - Windows installer: `Fries-Setup-<version>-x64.exe`
 - Windows portable: `Fries-Portable-<version>-x64.exe`
 - Windows unpacked dir: `release/win-unpacked/`
-- macOS unsigned zip / dmg: `Fries-<version>-arm64.zip` / `Fries-<version>-arm64.dmg`
+- macOS zip / dmg: `Fries-<version>-arm64.zip` / `Fries-<version>-arm64.dmg`
 
 Release channels:
 
@@ -118,15 +118,17 @@ Release channels:
 Multi-platform note:
 
 - Windows ships as installer, portable, and unpacked directory.
-- macOS ships in CI as unsigned `dmg` / `zip`; polished public distribution usually still needs Apple signing / notarization.
+- macOS ships in CI as `dmg` / `zip`; when Apple signing secrets are configured, the workflow is prepared to sign and notarize builds automatically. Without those secrets, CI still falls back to unsigned beta artifacts.
 - Linux is intentionally not an official release target for now.
+
+For signing/notarization setup details, see `docs/publishing/MACOS_SIGNING.md`.
 
 ## Release Notes
 
-- Current app version: `0.4.1-beta`
+- Current app version: `0.4.2-beta`
 - Product name: `Fries / 薯条`
-- Default Windows installer artifact: `Fries-Setup-0.4.1-beta-x64.exe`
-- Default Windows portable artifact: `Fries-Portable-0.4.1-beta-x64.exe`
+- Default Windows installer artifact: `Fries-Setup-0.4.2-beta-x64.exe`
+- Default Windows portable artifact: `Fries-Portable-0.4.2-beta-x64.exe`
 
 ## Open-Source Publishing Notes
 
@@ -135,6 +137,7 @@ Multi-platform note:
 - GitHub Actions CI: `.github/workflows/ci.yml`
 - GitHub Actions release matrix (Windows + macOS): `.github/workflows/release.yml`
 - Maintainer release docs: `docs/publishing/`
+- macOS signing / notarization prep: `docs/publishing/MACOS_SIGNING.md`
 - Suggested GitHub topics:
   `codex`, `claude-code`, `opencode`, `openclaw`, `agents-md`, `agent-skill`, `claude-code-skill`
 
