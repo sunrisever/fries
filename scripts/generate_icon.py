@@ -72,6 +72,7 @@ def main() -> None:
 
     image_512 = build_icon(512)
     image_512.save(BUILD_DIR / "icon.png")
+    image_512.save(BUILD_DIR / "icon.icns")
     image_512.save(PUBLIC_DIR / "app-icon.png")
     image_512.save(BUILD_DIR / "icon.ico", sizes=[(256, 256), (128, 128), (64, 64), (48, 48), (32, 32), (16, 16)])
     image_512.save(electron_assets / "app-icon.png")

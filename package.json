@@ -85,7 +85,7 @@
     },
     "mac": {
       "artifactName": "Fries-${version}-${arch}.${ext}",
-      "icon": "build/icon.png",
+      "icon": "icon.icns",
       "category": "public.app-category.productivity",
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
