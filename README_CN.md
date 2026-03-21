@@ -98,7 +98,6 @@ npm run self-check
 npm run pack:dir
 npm run pack:installer
 npm run pack:portable
-npm run pack:linux
 npm run pack:mac
 npm run release:beta
 ```
@@ -108,35 +107,33 @@ npm run release:beta
 - Windows 安装包：`Fries-Setup-<version>-x64.exe`
 - Windows 便携版：`Fries-Portable-<version>-x64.exe`
 - Windows 免安装运行目录：`release/win-unpacked/`
-- Linux AppImage：`Fries-<version>-x86_64.AppImage`
-- Linux deb：`Fries-<version>-amd64.deb`
 - macOS 未签名 zip / dmg：`Fries-<version>-arm64.zip` / `Fries-<version>-arm64.dmg`
 
 发布渠道现在分成三层：
 
 - 本地 Windows 打包脚本仍然使用 `--publish never`，所以本机执行时不会误上传。
-- GitHub Actions 会在 tag 上跑全平台 release matrix，并把产物上传到 GitHub Releases。
+- GitHub Actions 会在 tag 上跑 `Windows + macOS` release matrix，并把产物上传到 GitHub Releases。
 - GitHub Actions 自己的 artifacts 也会保留各平台包，方便先验收再正式下载。
 
 多平台说明：
 
 - Windows 提供安装包、便携版和免安装目录。
-- Linux 通过 CI 产出 `AppImage` 和 `deb`。
 - macOS 通过 CI 产出未签名 `dmg` / `zip`；如果要面向普通用户稳定分发，通常还需要 Apple 签名 / notarization。
+- Linux 这轮先不作为正式发布目标。
 
 ## 当前版本
 
-- 当前版本号：`0.4.0-beta`
+- 当前版本号：`0.4.1-beta`
 - 产品名：`Fries / 薯条`
-- Windows 安装包文件名：`Fries-Setup-0.4.0-beta-x64.exe`
-- Windows 便携版文件名：`Fries-Portable-0.4.0-beta-x64.exe`
+- Windows 安装包文件名：`Fries-Setup-0.4.1-beta-x64.exe`
+- Windows 便携版文件名：`Fries-Portable-0.4.1-beta-x64.exe`
 
 ## 开源发布建议
 
 - 许可证：MIT
 - 建议仓库名：`sunrisever/fries`
 - GitHub Actions CI：`.github/workflows/ci.yml`
-- GitHub Actions 多平台发布：`.github/workflows/release.yml`
+- GitHub Actions 发布矩阵（Windows + macOS）：`.github/workflows/release.yml`
 - 维护者发布文档：`docs/publishing/`
 - 建议 GitHub topics：
   `codex`, `claude-code`, `opencode`, `openclaw`, `agents-md`, `agent-skill`, `claude-code-skill`

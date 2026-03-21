@@ -1,7 +1,7 @@
 {
   "name": "fries",
   "private": true,
-  "version": "0.4.0-beta",
+  "version": "0.4.1-beta",
   "description": "薯条 | Fries",
   "author": "sunrisever",
   "license": "MIT",
@@ -31,7 +31,6 @@
     "pack:dir": "npm run build && electron-builder --publish never --win dir",
     "pack:portable": "npm run build && electron-builder --publish never --win portable",
     "pack:installer": "npm run build && electron-builder --publish never --win nsis",
-    "pack:linux": "npm run build && electron-builder --publish never --linux AppImage deb",
     "pack:mac": "npm run build && electron-builder --publish never --mac zip dmg",
     "pack:release": "npm run build && electron-builder --publish never --win nsis portable",
     "release:beta": "npm run check && electron-builder --publish never --win nsis portable",
@@ -82,15 +81,6 @@
     },
     "portable": {
       "artifactName": "Fries-Portable-${version}-${arch}.${ext}"
-    },
-    "linux": {
-      "artifactName": "Fries-${version}-${arch}.${ext}",
-      "icon": "build/icon.png",
-      "category": "Utility",
-      "target": [
-        "AppImage",
-        "deb"
-      ]
     },
     "mac": {
       "artifactName": "Fries-${version}-${arch}.${ext}",

@@ -18,9 +18,6 @@ jobs:
           - os: windows-latest
             artifact_name: windows
             pack_script: pack:release
-          - os: ubuntu-latest
-            artifact_name: linux
-            pack_script: pack:linux
           - os: macos-latest
             artifact_name: macos
             pack_script: pack:mac
@@ -66,5 +63,5 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           prerelease: true
-          body_path: docs/publishing/RELEASE_NOTES_0.4.0-beta.md
+          body_path: docs/publishing/RELEASE_NOTES_0.4.1-beta.md
           files: release-assets/*

@@ -98,7 +98,6 @@ Checks included in `npm run check`:
 npm run pack:dir
 npm run pack:installer
 npm run pack:portable
-npm run pack:linux
 npm run pack:mac
 npm run release:beta
 ```
@@ -108,35 +107,33 @@ Current packaged artifacts:
 - Windows installer: `Fries-Setup-<version>-x64.exe`
 - Windows portable: `Fries-Portable-<version>-x64.exe`
 - Windows unpacked dir: `release/win-unpacked/`
-- Linux AppImage: `Fries-<version>-x86_64.AppImage`
-- Linux deb: `Fries-<version>-amd64.deb`
 - macOS unsigned zip / dmg: `Fries-<version>-arm64.zip` / `Fries-<version>-arm64.dmg`
 
 Release channels:
 
 - Local packaging on Windows still uses `--publish never`, so running scripts locally never uploads anything by accident.
-- GitHub Actions now builds a multi-platform release matrix on tags and uploads assets to GitHub Releases.
+- GitHub Actions now builds a Windows + macOS release matrix on tags and uploads assets to GitHub Releases.
 - Workflow artifacts also keep per-platform packages available even before a formal GitHub Release is downloaded.
 
 Multi-platform note:
 
 - Windows ships as installer, portable, and unpacked directory.
-- Linux ships in CI as `AppImage` and `deb`.
 - macOS ships in CI as unsigned `dmg` / `zip`; polished public distribution usually still needs Apple signing / notarization.
+- Linux is intentionally not an official release target for now.
 
 ## Release Notes
 
-- Current app version: `0.4.0-beta`
+- Current app version: `0.4.1-beta`
 - Product name: `Fries / 薯条`
-- Default Windows installer artifact: `Fries-Setup-0.4.0-beta-x64.exe`
-- Default Windows portable artifact: `Fries-Portable-0.4.0-beta-x64.exe`
+- Default Windows installer artifact: `Fries-Setup-0.4.1-beta-x64.exe`
+- Default Windows portable artifact: `Fries-Portable-0.4.1-beta-x64.exe`
 
 ## Open-Source Publishing Notes
 
 - License: MIT
 - Suggested repository: `sunrisever/fries`
 - GitHub Actions CI: `.github/workflows/ci.yml`
-- GitHub Actions release matrix: `.github/workflows/release.yml`
+- GitHub Actions release matrix (Windows + macOS): `.github/workflows/release.yml`
 - Maintainer release docs: `docs/publishing/`
 - Suggested GitHub topics:
   `codex`, `claude-code`, `opencode`, `openclaw`, `agents-md`, `agent-skill`, `claude-code-skill`

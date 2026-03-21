@@ -43,7 +43,7 @@ const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const TimelinePage = lazy(() => import("./pages/TimelinePage"));
 
 const STORAGE_KEY = "ai-account-console.dashboard.v1";
-const APP_VERSION = "0.4.0-beta";
+const APP_VERSION = "0.4.1-beta";
 const APP_CHINESE_NAME = "薯条";
 const DATA_YEAR_MIN = 2026;
 const DATA_YEAR_MAX = 2036;

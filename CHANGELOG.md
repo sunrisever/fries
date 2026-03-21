@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 0.4.1-beta
+
+- Narrowed the official release matrix to Windows + macOS so the public release story stays aligned with what is actually maintained.
+- Kept macOS as an unsigned beta channel aimed at design-sensitive desktop users while leaving Linux out of the official release promise for now.
+- Updated packaging docs, release workflow, and artifact naming to match the new two-platform release scope.
+
 ## 0.4.0-beta
 
 - Added a GitHub Actions release matrix for Windows, Linux, and macOS packaging.
