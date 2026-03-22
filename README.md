@@ -109,6 +109,15 @@ Current packaged artifacts:
 - Windows unpacked dir: `release/win-unpacked/`
 - macOS zip / dmg: `Fries-<version>-arm64.zip` / `Fries-<version>-arm64.dmg`
 
+## Which Download Should I Choose?
+
+- Windows desktop users: download `Fries-Setup-<version>-x64.exe`
+- Windows users who do not want installation: download `Fries-Portable-<version>-x64.exe`
+- macOS Apple Silicon users: download `Fries-<version>-arm64.dmg` first, or `Fries-<version>-arm64.zip` if you prefer archive form
+- `win-unpacked/` is mainly for local debugging and advanced users; most users should ignore it
+
+If a release has already been uploaded to GitHub Releases, local copies under `release/` are only for local testing and can be removed to save disk space.
+
 Local packaging output:
 
 - Local `npm run pack:*` commands write to the in-repo `release/` directory by default.
@@ -133,10 +142,10 @@ For signing/notarization setup details, see `docs/publishing/MACOS_SIGNING.md`.
 
 ## Release Notes
 
-- Current app version: `0.4.3-beta`
+- Current app version: `0.4.4-beta`
 - Product name: `Fries / 薯条`
-- Default Windows installer artifact: `Fries-Setup-0.4.3-beta-x64.exe`
-- Default Windows portable artifact: `Fries-Portable-0.4.3-beta-x64.exe`
+- Default Windows installer artifact: `Fries-Setup-0.4.4-beta-x64.exe`
+- Default Windows portable artifact: `Fries-Portable-0.4.4-beta-x64.exe`
 
 ## Open-Source Publishing Notes
 

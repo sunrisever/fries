@@ -182,6 +182,17 @@ function TimelinePageComponent({
   const weekTimelineScrollRef = useRef<HTMLDivElement>(null);
   const weekTimelineShellRef = useRef<HTMLDivElement>(null);
   const monthTimelineShellRef = useRef<HTMLDivElement>(null);
+  const weekAutoPositionKeyRef = useRef<string>("");
+  const monthAutoPositionKeyRef = useRef<string>("");
+
+  useEffect(() => {
+    if (timelineScope !== "week") {
+      weekAutoPositionKeyRef.current = "";
+    }
+    if (timelineScope !== "month") {
+      monthAutoPositionKeyRef.current = "";
+    }
+  }, [timelineScope]);
 
   const timelineEventsView = useMemo(() => {
     const accountMap = new Map(accounts.map((account) => [account.id, account]));
@@ -249,6 +260,11 @@ function TimelinePageComponent({
     const selectedWeekStart = startOfWeek(new Date(timelineWeekKey));
     const selectedWeekEnd = addDays(selectedWeekStart, 7);
     const isCurrentWeek = now >= selectedWeekStart && now < selectedWeekEnd;
+    const autoPositionKey = `${timelineScope}:${timelineWeekKey}`;
+    if (weekAutoPositionKeyRef.current === autoPositionKey) {
+      return;
+    }
+    weekAutoPositionKeyRef.current = autoPositionKey;
     const minuteOfDay = now.getHours() * 60 + now.getMinutes();
     const currentTop = isCurrentWeek ? (minuteOfDay / 60) * TIMELINE_HOUR_HEIGHT : 0;
 
@@ -276,6 +292,11 @@ function TimelinePageComponent({
     }
 
     const now = new Date(clockNow);
+    const autoPositionKey = `${timelineScope}:${timelineCalendarYear}`;
+    if (monthAutoPositionKeyRef.current === autoPositionKey) {
+      return;
+    }
+    monthAutoPositionKeyRef.current = autoPositionKey;
     const targetDay = timelineCalendarYear === now.getFullYear() ? dayKey(now) : "";
     const target =
       (targetDay

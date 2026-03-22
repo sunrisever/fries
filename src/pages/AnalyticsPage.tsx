@@ -288,7 +288,7 @@ function AnalyticsPageComponent({
           <article className="chart-card chart-card--trend">
             <div className="chart-head">
               <div>
-                <span className="chart-tag">{uiText("折线", "Line")}</span>
+                <span className="chart-tag">{uiText("双图", "Dual chart")}</span>
                 <h4>{uiText("Token 消耗走势", "Token trend")}</h4>
               </div>
               <strong className="chart-summary">{compactNumber(trendTotal)}</strong>

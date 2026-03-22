@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 0.4.4-beta
+
+- Fixed the dual-chart token analytics panel so the lower delta chart uses signed deltas, keeps zero as the baseline, and respects locale-specific rise/fall colors.
+- Tightened account routing and timeline interactions with the latest local fixes, including safer signature-based routing and less intrusive timeline auto-positioning.
+- Refreshed the user download guidance and archived a few one-off maintenance scripts out of the active scripts root.
+
 ## 0.4.3-beta
 
 - Cleaned the GitHub release workflow so public release pages only keep end-user assets instead of debug and blockmap noise.

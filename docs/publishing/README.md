@@ -10,7 +10,8 @@ This folder contains maintainer-facing release material for Fries.
 - `RELEASE_NOTES_0.4.0-beta.md`: archived first multi-platform beta notes
 - `RELEASE_NOTES_0.4.1-beta.md`: archived Windows + macOS scope notes
 - `RELEASE_NOTES_0.4.2-beta.md`: archived macOS polish + signing-prep beta notes
-- `RELEASE_NOTES_0.4.3-beta.md`: current cleaner-release workflow beta notes
+- `RELEASE_NOTES_0.4.3-beta.md`: archived cleaner-release workflow beta notes
+- `RELEASE_NOTES_0.4.4-beta.md`: current dual-chart + routing-fix beta notes
 - `MACOS_SIGNING.md`: Apple signing / notarization preparation guide
 - `MACOS_SIGNING_CN.md`: 中文版 Apple 签名 / notarization 配置指南
 

@@ -43,7 +43,8 @@ const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const TimelinePage = lazy(() => import("./pages/TimelinePage"));
 
 const STORAGE_KEY = "ai-account-console.dashboard.v1";
-const APP_VERSION = "0.4.3-beta";
+const SIGNATURE_PROMPT_COOLDOWN_KEY = "ai-account-console.signature-prompt-cooldowns.v1";
+const APP_VERSION = "0.4.4-beta";
 const APP_CHINESE_NAME = "薯条";
 const DATA_YEAR_MIN = 2026;
 const DATA_YEAR_MAX = 2036;
@@ -192,6 +193,39 @@ function fallbackLoadState(): DashboardState {
     return JSON.parse(raw) as DashboardState;
   } catch {
     return cloneSeed();
+  }
+}
+
+function pruneSignaturePromptCooldowns(
+  record: Record<string, number>,
+  now = Date.now(),
+) {
+  return Object.fromEntries(
+    Object.entries(record).filter(([, value]) => Number.isFinite(value) && now - Number(value) < 30 * 24 * 60 * 60 * 1000),
+  );
+}
+
+function loadSignaturePromptCooldowns() {
+  try {
+    const raw = localStorage.getItem(SIGNATURE_PROMPT_COOLDOWN_KEY);
+    if (!raw) {
+      return {};
+    }
+
+    return pruneSignaturePromptCooldowns(JSON.parse(raw) as Record<string, number>);
+  } catch {
+    return {};
+  }
+}
+
+function persistSignaturePromptCooldowns(map: Map<string, number>) {
+  try {
+    localStorage.setItem(
+      SIGNATURE_PROMPT_COOLDOWN_KEY,
+      JSON.stringify(pruneSignaturePromptCooldowns(Object.fromEntries(map))),
+    );
+  } catch {
+    // Ignore local storage failures; cooldowns are a UX hint, not source-of-truth data.
   }
 }
 
@@ -699,12 +733,13 @@ function snapshotRouteKey(
   snapshot?: Pick<LiveUsageSnapshot, "accountEmail" | "plan" | "subscriptionActiveUntil" | "subscriptionActiveUntilMs">,
 ) {
   const email = normalizeEmail(snapshot?.accountEmail);
+  const planKey = normalizePlanKey(snapshot?.plan) ?? "unknown";
   const expiryMs = subscriptionTime(snapshot);
   if (!email || typeof expiryMs !== "number") {
     return undefined;
   }
 
-  return `${email}|${expiryMs}`;
+  return `${email}|${planKey}|${expiryMs}`;
 }
 
 function signaturePromptKey(
@@ -719,6 +754,7 @@ function accountRouteKey(account?: AccountRecord) {
   }
 
   const email = normalizeEmail(account.email);
+  const planKey = normalizePlanKey(account.plan) ?? "unknown";
   const expiryMs = parseDateTimeValue(
     account.liveUsage?.subscriptionActiveUntilMs ?? account.liveUsage?.subscriptionActiveUntil ?? account.expiryAt,
   );
@@ -726,7 +762,7 @@ function accountRouteKey(account?: AccountRecord) {
     return undefined;
   }
 
-  return `${email}|${expiryMs}`;
+  return `${email}|${planKey}|${expiryMs}`;
 }
 
 function snapshotBelongsToAccount(account: AccountRecord | undefined, snapshot: LiveUsageSnapshot | undefined) {
@@ -2287,7 +2323,9 @@ function App() {
   const pendingSyncChoiceRef = useRef<PendingSyncChoice | null>(null);
   const skipDesktopSaveRef = useRef<boolean>(false);
   const persistTimerRef = useRef<number | null>(null);
-  const signaturePromptCooldownRef = useRef<Map<string, number>>(new Map());
+  const signaturePromptCooldownRef = useRef<Map<string, number>>(
+    new Map(Object.entries(loadSignaturePromptCooldowns()).map(([key, value]) => [key, Number(value)])),
+  );
   const resizeDragRef = useRef<ResizeDragState | null>(null);
   const resizeRafRef = useRef<number | null>(null);
   const resizePendingBoundsRef = useRef<DesktopWindowBounds | null>(null);
@@ -2608,6 +2646,7 @@ function App() {
       return true;
     }
     signaturePromptCooldownRef.current.set(key, now);
+    persistSignaturePromptCooldowns(signaturePromptCooldownRef.current);
     return false;
   }
 
@@ -2984,12 +3023,14 @@ function App() {
         ? currentOpenAiAccounts.find((account) => account.id === preferredTargetId)
         : undefined;
       const preferredEmail = normalizeEmail(preferredTarget?.email);
+      const preferredRequiresWorkspaceRouting = requiresWorkspaceSignatureRouting(preferredTarget);
+      const preferredHasSignature = Boolean(accountRouteKey(preferredTarget));
       const hasSingleOpenAiAccount = currentOpenAiAccounts.length === 1;
       const preferredMatchesSnapshot =
         !preferredTarget ||
         snapshotBelongsToAccount(preferredTarget, snapshot) ||
-        !normalizedSnapshotEmail ||
-        preferredEmail === normalizedSnapshotEmail;
+        ((!normalizedSnapshotEmail || preferredEmail === normalizedSnapshotEmail) &&
+          (!preferredHasSignature || !preferredRequiresWorkspaceRouting));
       const activeCandidate = currentOpenAiAccounts.find((account) => account.id === activeId);
       const activeMatchesSnapshotEmail = Boolean(
         activeCandidate &&
@@ -3023,7 +3064,7 @@ function App() {
         !singleSameEmailMatchesSignature &&
         singleSameEmailNeedsWorkspaceRouting;
       const skipReason = preferredTarget && !preferredMatchesSnapshot
-        ? `当前同步源邮箱 ${snapshot.accountEmail} 和你指定的 ${getDisplayTitle(preferredTarget)} 不一致，已阻止写入。`
+        ? `当前同步源 ${snapshot.accountEmail}${snapshot.subscriptionActiveUntil ? ` / ${snapshot.subscriptionActiveUntil}` : ""} 和你指定的 ${getDisplayTitle(preferredTarget)} 路由签名不一致，已阻止写入。`
         : normalizedSnapshotEmail
           ? sameEmailAccounts.length === 0
             ? `当前同步源邮箱 ${snapshot.accountEmail} 没有和面板中的任何 OpenAI 账号建立对应关系。`
@@ -4347,6 +4388,13 @@ function App() {
       editingAccountId ??
       duplicateAccount?.id ??
       `${nextCluster}-${Date.now()}-${Math.random().toString(16).slice(2, 6)}`;
+    const nextEmail = editorDraft.email.trim();
+    const nextExpiryInput = editorDraft.expiryAt?.trim() || undefined;
+    const nextExpiryMs = parseDateTimeValue(nextExpiryInput);
+    const nextExpiryLabel =
+      typeof nextExpiryMs === "number"
+        ? formatUiDateTime(nextExpiryMs) ?? nextExpiryInput
+        : nextExpiryInput;
     const nextNotes = editorDraft.notesText
       .split(/\r?\n/)
       .map((line) => line.trim())
@@ -4361,6 +4409,26 @@ function App() {
         : existingAccount?.status === "observe"
           ? defaultStatus
           : existingAccount?.status ?? defaultStatus;
+      const nextLiveUsage =
+        exists && existingAccount?.liveUsage
+          ? normalizeSnapshot(
+              {
+                ...existingAccount.liveUsage,
+                provider: providerName,
+                accountEmail: nextEmail || existingAccount.liveUsage.accountEmail,
+                plan: nextPlan,
+                subscriptionActiveUntil:
+                  nextCluster === "openai"
+                    ? nextExpiryLabel ?? existingAccount.liveUsage.subscriptionActiveUntil
+                    : existingAccount.liveUsage.subscriptionActiveUntil,
+                subscriptionActiveUntilMs:
+                  nextCluster === "openai"
+                    ? nextExpiryMs ?? existingAccount.liveUsage.subscriptionActiveUntilMs
+                    : existingAccount.liveUsage.subscriptionActiveUntilMs,
+              },
+              existingAccount.liveUsage.recordedAtMs ?? existingAccount.liveUsage.recordedAt,
+            )
+          : existingAccount?.liveUsage;
       const nextAccount: AccountRecord = normalizeAccount({
         id: resolvedTargetId,
         provider: providerName,
@@ -4373,7 +4441,7 @@ function App() {
             ? editorDraft.workspace?.trim()
             : editorDraft.email.trim().split("@")[0]) ||
           providerName,
-        email: editorDraft.email.trim(),
+        email: nextEmail,
         plan: nextPlan,
         cluster: nextCluster,
         status: resolvedStatus,
@@ -4390,11 +4458,11 @@ function App() {
         trackingMode:
           exists ? existingAccount?.trackingMode ?? (nextCluster === "api" ? "exact" : "estimate") : nextCluster === "api" ? "exact" : "estimate",
         resetAt: exists ? existingAccount?.resetAt : undefined,
-        expiryAt: editorDraft.expiryAt?.trim() || undefined,
+        expiryAt: nextExpiryLabel,
         costLabel: editorDraft.costLabel?.trim() || undefined,
         tokensUsed: exists ? existingAccount?.tokensUsed : undefined,
         tokensRemaining: exists ? existingAccount?.tokensRemaining : undefined,
-        liveUsage: exists ? existingAccount?.liveUsage : undefined,
+        liveUsage: nextLiveUsage,
         usageHistory: exists ? existingAccount?.usageHistory : [],
         sourceLabel: exists
           ? existingAccount?.sourceLabel ?? "手动录入"
@@ -4416,6 +4484,18 @@ function App() {
         `${nextAccount.accountLabel} · ${nextAccount.email || "未记录邮箱"}`,
       );
     });
+
+    if (nextCluster === "openai") {
+      const draftRouteKey = editorDraftRouteKey({
+        ...editorDraft,
+        email: nextEmail,
+        expiryAt: nextExpiryLabel,
+      });
+      if (draftRouteKey) {
+        signaturePromptCooldownRef.current.delete(draftRouteKey);
+        persistSignaturePromptCooldowns(signaturePromptCooldownRef.current);
+      }
+    }
 
     setSelectedId(resolvedTargetId);
     setEditorOpen(false);

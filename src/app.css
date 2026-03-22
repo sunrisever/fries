@@ -3549,21 +3549,39 @@ button {
     color-mix(in srgb, var(--card-glass-soft) 96%, white 4%);
 }
 
-.token-k-chart-host,
-.token-k-chart-overlay {
+.token-k-chart--dual {
+  display: grid;
+  grid-template-rows: minmax(340px, 1fr) minmax(170px, 0.4fr);
+  gap: 12px;
+  padding: 12px;
+}
+
+.token-k-chart-pane {
+  position: relative;
+  min-height: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--surface-border) 60%, transparent);
+  background: color-mix(in srgb, var(--card-glass-softer) 98%, transparent);
+}
+
+.token-k-chart-pane-label {
+  position: absolute;
+  z-index: 2;
+  top: 10px;
+  left: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent-soft) 72%, transparent);
+  color: var(--text-primary);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.token-k-chart-host {
   position: absolute;
   inset: 0;
-}
-
-.token-k-chart-overlay {
-  pointer-events: none;
-  z-index: 3;
-}
-
-.token-k-delta-bar {
-  position: absolute;
-  border-radius: 0;
-  opacity: 0.92;
 }
 
 .token-k-chart.empty {

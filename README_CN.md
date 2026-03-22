@@ -109,6 +109,15 @@ npm run release:beta
 - Windows 免安装运行目录：`release/win-unpacked/`
 - macOS zip / dmg：`Fries-<version>-arm64.zip` / `Fries-<version>-arm64.dmg`
 
+## 小白下载指南
+
+- 普通 Windows 用户：优先下载 `Fries-Setup-<version>-x64.exe`
+- 不想安装、想随手解压就跑的 Windows 用户：下载 `Fries-Portable-<version>-x64.exe`
+- Apple Silicon 的 macOS 用户：优先下载 `Fries-<version>-arm64.dmg`，如果想要压缩包就下载 `Fries-<version>-arm64.zip`
+- `win-unpacked/` 更偏向本地调试和高级用户，普通用户一般不用下载它
+
+如果某个版本已经完整上传到了 GitHub Releases，那么你本地 `release/` 里的同版本产物就只是本地调试副本，可以按需删除来节约空间。
+
 本地打包输出：
 
 - 现在本地执行 `npm run pack:*` 时，产物默认会输出到仓库内的 `release/` 目录。
@@ -134,10 +143,10 @@ npm run release:beta
 
 ## 当前版本
 
-- 当前版本号：`0.4.3-beta`
+- 当前版本号：`0.4.4-beta`
 - 产品名：`Fries / 薯条`
-- Windows 安装包文件名：`Fries-Setup-0.4.3-beta-x64.exe`
-- Windows 便携版文件名：`Fries-Portable-0.4.3-beta-x64.exe`
+- Windows 安装包文件名：`Fries-Setup-0.4.4-beta-x64.exe`
+- Windows 便携版文件名：`Fries-Portable-0.4.4-beta-x64.exe`
 
 ## 开源发布建议
 
