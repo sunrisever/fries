@@ -114,6 +114,8 @@ type AnalyticsPageProps = {
   setHeatmapMonthCursor: (value: number) => void;
   selectableYears: () => number[];
   selectableMonths: (year: number) => number[];
+  heatmapThresholds: number[];
+  heatmapThresholdModeLabel: string;
   heatmapMonthView: HeatmapMonthView;
   heatmapYearView: HeatmapYearView;
 };
@@ -143,9 +145,17 @@ function AnalyticsPageComponent({
   setHeatmapMonthCursor,
   selectableYears,
   selectableMonths,
+  heatmapThresholds,
+  heatmapThresholdModeLabel,
   heatmapMonthView,
   heatmapYearView,
 }: AnalyticsPageProps) {
+  const heatmapLegendText = [
+    "0",
+    ">0",
+    ...heatmapThresholds.map((threshold) => `${uiText("≥", "≥")}${compactNumber(threshold)}`),
+  ].join(" / ");
+
   return (
     <div className="page">
       <section className="page-section">
@@ -386,7 +396,11 @@ function AnalyticsPageComponent({
           <div className="heatmap-calendar">
             <div className="heatmap-calendar-head">
               <strong>{heatmapMonthView.title}</strong>
-              <span>{uiText("热度阈值：0 / 100万 / 1000万 / 2000万 / 5000万 / 1亿+", "Levels: 0 / 1M / 10M / 20M / 50M / 100M+")}</span>
+              <span>{uiText("热度阈值（", "Levels (")}{heatmapThresholdModeLabel}{uiText("）：", "): ")}{heatmapLegendText}</span>
+            </div>
+            <div className="heatmap-mode-note">
+              <span>{uiText("当前模式：", "Current mode: ")}</span>
+              <strong>{heatmapThresholdModeLabel}</strong>
             </div>
             <div className="heatmap-weekday-row">
               {heatmapMonthView.weekdayLabels.map((label) => (
@@ -414,7 +428,11 @@ function AnalyticsPageComponent({
           <div className="heatmap-year-shell">
             <div className="heatmap-calendar-head">
               <strong>{heatmapYearView.title}</strong>
-              <span>{uiText("全年每日热度一览。", "Full-year daily heatmap.")}</span>
+              <span>{uiText("全年每日热度一览（", "Full-year daily heatmap (")}{heatmapThresholdModeLabel}{uiText("）。阈值：", "). Levels: ")}{heatmapLegendText}</span>
+            </div>
+            <div className="heatmap-mode-note">
+              <span>{uiText("当前模式：", "Current mode: ")}</span>
+              <strong>{heatmapThresholdModeLabel}</strong>
             </div>
             <div className="heatmap-year-board">
               <div className="heatmap-year-months">

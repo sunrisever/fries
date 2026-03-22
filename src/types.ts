@@ -42,6 +42,7 @@ export type TimelineScope = "week" | "month";
 export type AnalyticsRange = "hour" | "day" | "week" | "month";
 export type AnalyticsChartMode = "line" | "bar";
 export type HeatmapScope = "month" | "year";
+export type HeatmapThresholdMode = "auto" | "fixed";
 
 export interface RollingUsageWindow {
   usedPercent?: number;
@@ -146,6 +147,7 @@ export interface DashboardSettings {
   analyticsRange: AnalyticsRange;
   analyticsChartMode: AnalyticsChartMode;
   heatmapScope: HeatmapScope;
+  heatmapThresholdMode: HeatmapThresholdMode;
 }
 
 export interface DashboardState {

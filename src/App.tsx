@@ -21,12 +21,14 @@ import type {
   DataPaths,
   DesktopWindowBounds,
   DesktopWindowState,
+  HeatmapThresholdMode,
   HeatmapScope,
   LocaleMode,
   LiveUsageSnapshot,
   RollingUsageWindow,
   SelfCheckReport,
   SnapshotIndexCache,
+  SnapshotIndexBucketEntry,
   SnapshotRecord,
   ThemeMode,
   ThemePreset,
@@ -44,7 +46,7 @@ const TimelinePage = lazy(() => import("./pages/TimelinePage"));
 
 const STORAGE_KEY = "ai-account-console.dashboard.v1";
 const SIGNATURE_PROMPT_COOLDOWN_KEY = "ai-account-console.signature-prompt-cooldowns.v1";
-const APP_VERSION = "0.4.4-beta";
+const APP_VERSION = "0.4.5-beta";
 const APP_CHINESE_NAME = "薯条";
 const DATA_YEAR_MIN = 2026;
 const DATA_YEAR_MAX = 2036;
@@ -183,6 +185,10 @@ function sanitizeThemePreset(value?: string): ThemePreset {
   }
 }
 
+function sanitizeHeatmapThresholdMode(value?: string): HeatmapThresholdMode {
+  return value === "fixed" ? "fixed" : "auto";
+}
+
 function fallbackLoadState(): DashboardState {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) {
@@ -246,6 +252,7 @@ function migrateLegacyState(state: DashboardState): DashboardState {
     settings: {
       ...baseSettings,
       themePreset: sanitizeThemePreset(baseSettings.themePreset),
+      heatmapThresholdMode: sanitizeHeatmapThresholdMode(baseSettings.heatmapThresholdMode),
     },
     accounts: Array.isArray(state.accounts)
       ? state.accounts.map((account) => {
@@ -1289,28 +1296,72 @@ function selectableYears() {
   return Array.from({ length: DATA_YEAR_MAX - DATA_YEAR_MIN + 1 }, (_, index) => DATA_YEAR_MIN + index);
 }
 
-function heatmapLevel(tokens: number) {
+const DEFAULT_HEATMAP_THRESHOLDS = [
+  5_000_000,
+  10_000_000,
+  20_000_000,
+  35_000_000,
+  50_000_000,
+  75_000_000,
+  100_000_000,
+];
+
+function sortedQuantile(values: number[], percentile: number) {
+  if (!values.length) {
+    return 0;
+  }
+
+  const clamped = Math.min(1, Math.max(0, percentile));
+  const index = (values.length - 1) * clamped;
+  const lower = Math.floor(index);
+  const upper = Math.ceil(index);
+  const weight = index - lower;
+
+  if (lower === upper) {
+    return values[lower] ?? 0;
+  }
+
+  return Math.round((values[lower] ?? 0) * (1 - weight) + (values[upper] ?? 0) * weight);
+}
+
+function buildHeatmapThresholds(dayBuckets: SnapshotIndexBucketEntry[]) {
+  const positiveValues = dayBuckets
+    .map((bucket) => bucket.tokens)
+    .filter((value): value is number => Number.isFinite(value) && value > 0)
+    .sort((left, right) => left - right);
+
+  if (positiveValues.length < 3) {
+    return DEFAULT_HEATMAP_THRESHOLDS;
+  }
+
+  const percentiles = [0.12, 0.25, 0.38, 0.5, 0.65, 0.8, 0.92];
+  const minimum = positiveValues[0] ?? 0;
+  const maximum = positiveValues[positiveValues.length - 1] ?? 0;
+  const rawThresholds = percentiles.map((percentile) => sortedQuantile(positiveValues, percentile));
+  const minimumStep = Math.max(1, Math.round((maximum - minimum) / 40));
+  const adjustedThresholds: number[] = [];
+
+  rawThresholds.forEach((value) => {
+    const previous = adjustedThresholds[adjustedThresholds.length - 1] ?? 0;
+    adjustedThresholds.push(Math.max(value, previous + minimumStep));
+  });
+
+  return adjustedThresholds;
+}
+
+function heatmapLevel(tokens: number, thresholds: number[] = DEFAULT_HEATMAP_THRESHOLDS) {
   if (!tokens) {
     return 0;
   }
 
-  if (tokens >= 100_000_000) {
-    return 5;
-  }
+  let level = 1;
+  thresholds.forEach((threshold, index) => {
+    if (tokens >= threshold) {
+      level = index + 2;
+    }
+  });
 
-  if (tokens > 50_000_000) {
-    return 4;
-  }
-
-  if (tokens > 20_000_000) {
-    return 3;
-  }
-
-  if (tokens > 10_000_000) {
-    return 2;
-  }
-
-  return 1;
+  return level;
 }
 
 function formatWindowSummary(window?: RollingUsageWindow) {
@@ -1986,8 +2037,25 @@ function sanitizeSeededAccount(seedAccount: AccountRecord, existing: AccountReco
 
 function applyLiveUsage(account: AccountRecord, snapshot: LiveUsageSnapshot): AccountRecord {
   const stampedSnapshot = stampSnapshot(snapshot);
-  const weekDepleted = isWeekWindowDepleted(stampedSnapshot.sevenDay);
-  const fiveHourRemaining = stampedSnapshot.fiveHour.remainingPercent;
+  const previousSnapshot = latestKnownSnapshot(account);
+  const previousTotalTokens = previousSnapshot?.totalTokens;
+  const incomingTotalTokens = stampedSnapshot.totalTokens;
+  const sameRouteSignature =
+    account.cluster !== "openai" ||
+    !previousSnapshot ||
+    snapshotBelongsToAccount(account, previousSnapshot) && snapshotBelongsToAccount(account, stampedSnapshot);
+  const stabilizedSnapshot =
+    sameRouteSignature &&
+    typeof previousTotalTokens === "number" &&
+    typeof incomingTotalTokens === "number" &&
+    incomingTotalTokens < previousTotalTokens
+      ? {
+          ...stampedSnapshot,
+          totalTokens: previousTotalTokens,
+        }
+      : stampedSnapshot;
+  const weekDepleted = isWeekWindowDepleted(stabilizedSnapshot.sevenDay);
+  const fiveHourRemaining = stabilizedSnapshot.fiveHour.remainingPercent;
   const nextStatus =
     weekDepleted
       ? "paused"
@@ -2000,34 +2068,34 @@ function applyLiveUsage(account: AccountRecord, snapshot: LiveUsageSnapshot): Ac
           : account.status;
   const nextResetAt =
     weekDepleted
-      ? stampedSnapshot.sevenDay.resetsAt ?? account.resetAt
-      : stampedSnapshot.fiveHour.resetsAt ?? account.resetAt;
+      ? stabilizedSnapshot.sevenDay.resetsAt ?? account.resetAt
+      : stabilizedSnapshot.fiveHour.resetsAt ?? account.resetAt;
   const nextUsageLabel = weekDepleted
-    ? `7d 剩余 ${formatPercent(stampedSnapshot.sevenDay.remainingPercent)} · 5h 剩余 100%`
-    : `7d 剩余 ${formatPercent(stampedSnapshot.sevenDay.remainingPercent)} · 5h 剩余 ${formatPercent(
-        stampedSnapshot.fiveHour.remainingPercent,
+    ? `7d 剩余 ${formatPercent(stabilizedSnapshot.sevenDay.remainingPercent)} · 5h 剩余 100%`
+    : `7d 剩余 ${formatPercent(stabilizedSnapshot.sevenDay.remainingPercent)} · 5h 剩余 ${formatPercent(
+        stabilizedSnapshot.fiveHour.remainingPercent,
       )}`;
   const nextStatusDetail = weekDepleted
-    ? `Codex 本地窗口已同步：本周窗口已用尽，暂停使用，等待 ${formatResetLabel(stampedSnapshot.sevenDay)} 恢复。`
+    ? `Codex 本地窗口已同步：本周窗口已用尽，暂停使用，等待 ${formatResetLabel(stabilizedSnapshot.sevenDay)} 恢复。`
     : `Codex 本地窗口已同步：5 小时窗剩余 ${formatPercent(
-        stampedSnapshot.fiveHour.remainingPercent,
-      )}，7 天窗剩余 ${formatPercent(stampedSnapshot.sevenDay.remainingPercent)}。`;
+        stabilizedSnapshot.fiveHour.remainingPercent,
+      )}，7 天窗剩余 ${formatPercent(stabilizedSnapshot.sevenDay.remainingPercent)}。`;
 
   return {
     ...account,
-    email: account.email || stampedSnapshot.accountEmail || account.email,
-    plan: account.plan || stampedSnapshot.plan || account.plan,
+    email: account.email || stabilizedSnapshot.accountEmail || account.email,
+    plan: account.plan || stabilizedSnapshot.plan || account.plan,
     status: nextStatus,
     trackingMode: "window",
-    usagePercent: weekDepleted ? 100 : stampedSnapshot.fiveHour.usedPercent ?? account.usagePercent,
+    usagePercent: weekDepleted ? 100 : stabilizedSnapshot.fiveHour.usedPercent ?? account.usagePercent,
     resetAt: nextResetAt,
-    expiryAt: stampedSnapshot.subscriptionActiveUntil ?? account.expiryAt,
-    sourceLabel: stampedSnapshot.sourceLabel,
+    expiryAt: stabilizedSnapshot.subscriptionActiveUntil ?? account.expiryAt,
+    sourceLabel: stabilizedSnapshot.sourceLabel,
     usageLabel: nextUsageLabel,
     statusDetail: nextStatusDetail,
     tokensUsed: undefined,
-    liveUsage: stampedSnapshot,
-    usageHistory: mergeUsageHistory(account, stampedSnapshot),
+    liveUsage: stabilizedSnapshot,
+    usageHistory: mergeUsageHistory(account, stabilizedSnapshot),
   };
 }
 
@@ -2260,6 +2328,7 @@ function ensureCompleteState(state: DashboardState): DashboardState {
       ...seed.settings,
       ...migrated.settings,
       themePreset: sanitizeThemePreset(migrated.settings?.themePreset),
+      heatmapThresholdMode: sanitizeHeatmapThresholdMode(migrated.settings?.heatmapThresholdMode),
     },
     accounts: normalizedAccounts,
     activityLog: Array.isArray(migrated.activityLog) ? migrated.activityLog : seed.activityLog,
@@ -3728,12 +3797,25 @@ function App() {
     >();
 
     openaiAccounts.forEach((account) => {
+      const snapshot = displaySnapshot(account);
+      const baselineTotal =
+        typeof snapshot?.totalTokens === "number"
+          ? snapshot.totalTokens
+          : typeof account.liveUsage?.totalTokens === "number"
+            ? account.liveUsage.totalTokens
+            : 0;
+      const baselineLast =
+        typeof snapshot?.lastTokens === "number"
+          ? snapshot.lastTokens
+          : typeof account.liveUsage?.lastTokens === "number"
+            ? account.liveUsage.lastTokens
+            : 0;
       bucket.set(account.id, {
         id: account.id,
         title: getDisplayTitle(account),
         subtitle: getDisplaySubtitle(account),
-        tokens: 0,
-        lastTokens: 0,
+        tokens: baselineTotal,
+        lastTokens: baselineLast,
         isActive: account.isActive,
       });
     });
@@ -3744,8 +3826,10 @@ function App() {
         return;
       }
 
-      current.tokens = totals.tokens;
-      current.lastTokens = totals.lastTokens;
+      current.tokens = Math.max(current.tokens, totals.tokens);
+      if (!current.lastTokens && totals.lastTokens) {
+        current.lastTokens = totals.lastTokens;
+      }
     });
 
     return [...bucket.values()].sort((left, right) => right.tokens - left.tokens);
@@ -3845,6 +3929,17 @@ function App() {
     snapshotIndex.minuteBuckets,
     state.settings.analyticsRange,
   ]);
+  const heatmapThresholds = useMemo(() => {
+    if (state.settings.heatmapThresholdMode === "fixed") {
+      return DEFAULT_HEATMAP_THRESHOLDS;
+    }
+
+    return buildHeatmapThresholds(Array.from(snapshotIndex.dayBuckets.values()));
+  }, [snapshotIndex.dayBuckets, state.settings.heatmapThresholdMode]);
+  const heatmapThresholdModeLabel = uiText(
+    state.settings.heatmapThresholdMode === "fixed" ? "固定" : "自动",
+    state.settings.heatmapThresholdMode === "fixed" ? "Fixed" : "Auto",
+  );
   const heatmapYearView = useMemo(() => {
     if (!isAnalyticsView) {
       return {
@@ -3928,7 +4023,7 @@ function App() {
           isCurrentYear,
           isToday: key === todayDateKey,
           tokens,
-          level: heatmapLevel(tokens),
+          level: heatmapLevel(tokens, heatmapThresholds),
           title,
         });
         cursor.setDate(cursor.getDate() + 1);
@@ -3944,7 +4039,7 @@ function App() {
       weeks,
       monthMarkers,
     };
-  }, [compactNumber, heatmapYearCursor, isAnalyticsView, locale, snapshotIndex.dayBuckets, todayDateKey]);
+  }, [compactNumber, heatmapThresholds, heatmapYearCursor, isAnalyticsView, locale, snapshotIndex.dayBuckets, todayDateKey]);
   const heatmapMonthView = useMemo(() => {
     if (!isAnalyticsView) {
       return {
@@ -3988,7 +4083,7 @@ function App() {
         isPlaceholder: false,
         dayNumber: String(dayNumber),
         tokens,
-        level: heatmapLevel(tokens),
+        level: heatmapLevel(tokens, heatmapThresholds),
         title: `${localizedMonthTitle(currentDate, locale)} ${dayNumber} · ${compactNumber(tokens)}`,
       };
     });
@@ -3998,7 +4093,7 @@ function App() {
       weekdayLabels: localizedWeekdayLabels(locale),
       cells,
     };
-  }, [compactNumber, heatmapMonthCursor, heatmapYearCursor, isAnalyticsView, locale, snapshotIndex.dayBuckets]);
+  }, [compactNumber, heatmapMonthCursor, heatmapThresholds, heatmapYearCursor, isAnalyticsView, locale, snapshotIndex.dayBuckets]);
   const navItems: Array<{ id: ViewId; label: string; hint: string }> = [
     { id: "overview", label: uiText("总览", "Overview"), hint: uiText("当前账号与窗口", "Current account and windows") },
     { id: "analytics", label: uiText("分析", "Analytics"), hint: uiText("消耗与热力图", "Usage and heatmap") },
@@ -4910,6 +5005,8 @@ function App() {
           setHeatmapMonthCursor={setHeatmapMonthCursor}
           selectableYears={selectableYears}
           selectableMonths={selectableMonths}
+          heatmapThresholds={heatmapThresholds}
+          heatmapThresholdModeLabel={heatmapThresholdModeLabel}
           heatmapMonthView={heatmapMonthView}
           heatmapYearView={heatmapYearView}
         />

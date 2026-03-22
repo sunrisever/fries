@@ -778,6 +778,42 @@
   box-shadow: none;
 }
 
+.heatmap-year-cell.level-0 {
+  background: #ffffff;
+}
+
+.heatmap-year-cell.level-1 {
+  background: #eef6ff;
+}
+
+.heatmap-year-cell.level-2 {
+  background: #cfe6ff;
+}
+
+.heatmap-year-cell.level-3 {
+  background: #d7f4de;
+}
+
+.heatmap-year-cell.level-4 {
+  background: #edf7c8;
+}
+
+.heatmap-year-cell.level-5 {
+  background: #fff1b8;
+}
+
+.heatmap-year-cell.level-6 {
+  background: #ffd6a6;
+}
+
+.heatmap-year-cell.level-7 {
+  background: #ffbea0;
+}
+
+.heatmap-year-cell.level-8 {
+  background: #ffb1b1;
+}
+
 .heatmap-calendar {
   display: grid;
   gap: 14px;
@@ -797,6 +833,20 @@
 .heatmap-calendar-head span {
   color: var(--text-muted);
   font-size: 0.84rem;
+}
+
+.heatmap-mode-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: -4px;
+  color: var(--text-soft);
+  font-size: 0.82rem;
+}
+
+.heatmap-mode-note strong {
+  color: var(--text-primary);
+  font-size: 0.86rem;
 }
 
 .heatmap-weekday-row {
@@ -863,26 +913,41 @@
 
 .heatmap-calendar-cell.level-1,
 .heatmap-cell.level-1 {
-  background: #dff0ff;
+  background: #eef6ff;
 }
 
 .heatmap-calendar-cell.level-2,
 .heatmap-cell.level-2 {
-  background: #dff6d9;
+  background: #cfe6ff;
 }
 
 .heatmap-calendar-cell.level-3,
 .heatmap-cell.level-3 {
-  background: #fff1b8;
+  background: #d7f4de;
 }
 
 .heatmap-calendar-cell.level-4,
 .heatmap-cell.level-4 {
-  background: #ffd6a6;
+  background: #edf7c8;
 }
 
 .heatmap-calendar-cell.level-5,
 .heatmap-cell.level-5 {
+  background: #fff1b8;
+}
+
+.heatmap-calendar-cell.level-6,
+.heatmap-cell.level-6 {
+  background: #ffd6a6;
+}
+
+.heatmap-calendar-cell.level-7,
+.heatmap-cell.level-7 {
+  background: #ffbea0;
+}
+
+.heatmap-calendar-cell.level-8,
+.heatmap-cell.level-8 {
   background: #ffb1b1;
 }
 
@@ -890,7 +955,10 @@
 .heatmap-calendar-cell.level-2 strong,
 .heatmap-calendar-cell.level-3 strong,
 .heatmap-calendar-cell.level-4 strong,
-.heatmap-calendar-cell.level-5 strong {
+.heatmap-calendar-cell.level-5 strong,
+.heatmap-calendar-cell.level-6 strong,
+.heatmap-calendar-cell.level-7 strong,
+.heatmap-calendar-cell.level-8 strong {
   color: #13202d;
 }
 
@@ -898,7 +966,10 @@
 .heatmap-calendar-cell.level-2 span,
 .heatmap-calendar-cell.level-3 span,
 .heatmap-calendar-cell.level-4 span,
-.heatmap-calendar-cell.level-5 span {
+.heatmap-calendar-cell.level-5 span,
+.heatmap-calendar-cell.level-6 span,
+.heatmap-calendar-cell.level-7 span,
+.heatmap-calendar-cell.level-8 span {
   color: rgba(19, 32, 45, 0.72);
 }
 
@@ -906,7 +977,10 @@
 .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-2 strong,
 .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-3 strong,
 .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-4 strong,
-.heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-5 strong {
+.heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-5 strong,
+.heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-6 strong,
+.heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-7 strong,
+.heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-8 strong {
   color: #13202d !important;
 }
 
@@ -914,7 +988,10 @@
 .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-2 span,
 .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-3 span,
 .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-4 span,
-.heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-5 span {
+.heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-5 span,
+.heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-6 span,
+.heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-7 span,
+.heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-8 span {
   color: rgba(19, 32, 45, 0.72) !important;
 }
 
@@ -941,22 +1018,34 @@
 }
 
 :root[data-theme="dark"] .heatmap-year-cell.level-1 {
-  background: #1e3950;
+  background: #183147;
 }
 
 :root[data-theme="dark"] .heatmap-year-cell.level-2 {
-  background: #1f4d34;
+  background: #1c4566;
 }
 
 :root[data-theme="dark"] .heatmap-year-cell.level-3 {
-  background: #735f16;
+  background: #1f5b3c;
 }
 
 :root[data-theme="dark"] .heatmap-year-cell.level-4 {
-  background: #8a4f1d;
+  background: #4d6120;
 }
 
 :root[data-theme="dark"] .heatmap-year-cell.level-5 {
+  background: #735f16;
+}
+
+:root[data-theme="dark"] .heatmap-year-cell.level-6 {
+  background: #8a4f1d;
+}
+
+:root[data-theme="dark"] .heatmap-year-cell.level-7 {
+  background: #9b3b22;
+}
+
+:root[data-theme="dark"] .heatmap-year-cell.level-8 {
   background: #7a2626;
 }
 
@@ -969,30 +1058,48 @@
 
 :root[data-theme="dark"] .heatmap-calendar-cell.level-1,
 :root[data-theme="dark"] .heatmap-cell.level-1 {
-  background: #1e3950;
+  background: #183147;
   color: #eff2f6;
 }
 
 :root[data-theme="dark"] .heatmap-calendar-cell.level-2,
 :root[data-theme="dark"] .heatmap-cell.level-2 {
-  background: #1f4d34;
+  background: #1c4566;
   color: #eef2f6;
 }
 
 :root[data-theme="dark"] .heatmap-calendar-cell.level-3,
 :root[data-theme="dark"] .heatmap-cell.level-3 {
-  background: #735f16;
-  color: #fff8db;
+  background: #1f5b3c;
+  color: #eef2f6;
 }
 
 :root[data-theme="dark"] .heatmap-calendar-cell.level-4,
 :root[data-theme="dark"] .heatmap-cell.level-4 {
-  background: #8a4f1d;
-  color: #fff0e0;
+  background: #4d6120;
+  color: #fff8db;
 }
 
 :root[data-theme="dark"] .heatmap-calendar-cell.level-5,
 :root[data-theme="dark"] .heatmap-cell.level-5 {
+  background: #8a4f1d;
+  color: #fff0e0;
+}
+
+:root[data-theme="dark"] .heatmap-calendar-cell.level-6,
+:root[data-theme="dark"] .heatmap-cell.level-6 {
+  background: #9b5a22;
+  color: #fff0e0;
+}
+
+:root[data-theme="dark"] .heatmap-calendar-cell.level-7,
+:root[data-theme="dark"] .heatmap-cell.level-7 {
+  background: #9b3b22;
+  color: #fff0e0;
+}
+
+:root[data-theme="dark"] .heatmap-calendar-cell.level-8,
+:root[data-theme="dark"] .heatmap-cell.level-8 {
   background: #7a2626;
   color: #171c22;
 }
@@ -1006,7 +1113,10 @@
 :root[data-theme="dark"] .heatmap-calendar-cell.level-2 strong,
 :root[data-theme="dark"] .heatmap-calendar-cell.level-3 strong,
 :root[data-theme="dark"] .heatmap-calendar-cell.level-4 strong,
-:root[data-theme="dark"] .heatmap-calendar-cell.level-5 strong {
+:root[data-theme="dark"] .heatmap-calendar-cell.level-5 strong,
+:root[data-theme="dark"] .heatmap-calendar-cell.level-6 strong,
+:root[data-theme="dark"] .heatmap-calendar-cell.level-7 strong,
+:root[data-theme="dark"] .heatmap-calendar-cell.level-8 strong {
   color: #12171d;
 }
 
@@ -1014,7 +1124,10 @@
 :root[data-theme="dark"] .heatmap-calendar-cell.level-2 span,
 :root[data-theme="dark"] .heatmap-calendar-cell.level-3 span,
 :root[data-theme="dark"] .heatmap-calendar-cell.level-4 span,
-:root[data-theme="dark"] .heatmap-calendar-cell.level-5 span {
+:root[data-theme="dark"] .heatmap-calendar-cell.level-5 span,
+:root[data-theme="dark"] .heatmap-calendar-cell.level-6 span,
+:root[data-theme="dark"] .heatmap-calendar-cell.level-7 span,
+:root[data-theme="dark"] .heatmap-calendar-cell.level-8 span {
   color: rgba(18, 23, 29, 0.72);
 }
 
@@ -1022,7 +1135,10 @@
 :root[data-theme="dark"] .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-2 strong,
 :root[data-theme="dark"] .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-3 strong,
 :root[data-theme="dark"] .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-4 strong,
-:root[data-theme="dark"] .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-5 strong {
+:root[data-theme="dark"] .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-5 strong,
+:root[data-theme="dark"] .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-6 strong,
+:root[data-theme="dark"] .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-7 strong,
+:root[data-theme="dark"] .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-8 strong {
   color: #12171d !important;
 }
 
@@ -1030,7 +1146,10 @@
 :root[data-theme="dark"] .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-2 span,
 :root[data-theme="dark"] .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-3 span,
 :root[data-theme="dark"] .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-4 span,
-:root[data-theme="dark"] .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-5 span {
+:root[data-theme="dark"] .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-5 span,
+:root[data-theme="dark"] .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-6 span,
+:root[data-theme="dark"] .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-7 span,
+:root[data-theme="dark"] .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-8 span {
   color: rgba(18, 23, 29, 0.72) !important;
 }
 
@@ -3029,11 +3148,62 @@ button {
     color: #eef2f6;
   }
 
+  :root:not([data-theme="light"]) .heatmap-calendar-cell.level-1,
+  :root:not([data-theme="light"]) .heatmap-cell.level-1 {
+    background: #183147;
+    color: #eff2f6;
+  }
+
+  :root:not([data-theme="light"]) .heatmap-calendar-cell.level-2,
+  :root:not([data-theme="light"]) .heatmap-cell.level-2 {
+    background: #1c4566;
+    color: #eef2f6;
+  }
+
+  :root:not([data-theme="light"]) .heatmap-calendar-cell.level-3,
+  :root:not([data-theme="light"]) .heatmap-cell.level-3 {
+    background: #1f5b3c;
+    color: #eef2f6;
+  }
+
+  :root:not([data-theme="light"]) .heatmap-calendar-cell.level-4,
+  :root:not([data-theme="light"]) .heatmap-cell.level-4 {
+    background: #4d6120;
+    color: #fff8db;
+  }
+
+  :root:not([data-theme="light"]) .heatmap-calendar-cell.level-5,
+  :root:not([data-theme="light"]) .heatmap-cell.level-5 {
+    background: #735f16;
+    color: #fff0e0;
+  }
+
+  :root:not([data-theme="light"]) .heatmap-calendar-cell.level-6,
+  :root:not([data-theme="light"]) .heatmap-cell.level-6 {
+    background: #8a4f1d;
+    color: #fff0e0;
+  }
+
+  :root:not([data-theme="light"]) .heatmap-calendar-cell.level-7,
+  :root:not([data-theme="light"]) .heatmap-cell.level-7 {
+    background: #9b3b22;
+    color: #fff0e0;
+  }
+
+  :root:not([data-theme="light"]) .heatmap-calendar-cell.level-8,
+  :root:not([data-theme="light"]) .heatmap-cell.level-8 {
+    background: #7a2626;
+    color: #171c22;
+  }
+
   :root:not([data-theme="light"]) .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-1 strong,
   :root:not([data-theme="light"]) .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-2 strong,
   :root:not([data-theme="light"]) .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-3 strong,
   :root:not([data-theme="light"]) .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-4 strong,
-  :root:not([data-theme="light"]) .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-5 strong {
+  :root:not([data-theme="light"]) .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-5 strong,
+  :root:not([data-theme="light"]) .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-6 strong,
+  :root:not([data-theme="light"]) .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-7 strong,
+  :root:not([data-theme="light"]) .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-8 strong {
     color: #12171d !important;
   }
 
@@ -3041,7 +3211,10 @@ button {
   :root:not([data-theme="light"]) .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-2 span,
   :root:not([data-theme="light"]) .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-3 span,
   :root:not([data-theme="light"]) .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-4 span,
-  :root:not([data-theme="light"]) .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-5 span {
+  :root:not([data-theme="light"]) .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-5 span,
+  :root:not([data-theme="light"]) .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-6 span,
+  :root:not([data-theme="light"]) .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-7 span,
+  :root:not([data-theme="light"]) .heatmap-grid.month-calendar .heatmap-calendar-cell:not(.is-placeholder).level-8 span {
     color: rgba(18, 23, 29, 0.72) !important;
   }
 
@@ -3075,22 +3248,34 @@ button {
   }
 
   :root:not([data-theme="light"]) .heatmap-year-cell.level-1 {
-    background: #1e3950;
+    background: #183147;
   }
 
   :root:not([data-theme="light"]) .heatmap-year-cell.level-2 {
-    background: #1f4d34;
+    background: #1c4566;
   }
 
   :root:not([data-theme="light"]) .heatmap-year-cell.level-3 {
-    background: #735f16;
+    background: #1f5b3c;
   }
 
   :root:not([data-theme="light"]) .heatmap-year-cell.level-4 {
-    background: #8a4f1d;
+    background: #4d6120;
   }
 
   :root:not([data-theme="light"]) .heatmap-year-cell.level-5 {
+    background: #735f16;
+  }
+
+  :root:not([data-theme="light"]) .heatmap-year-cell.level-6 {
+    background: #8a4f1d;
+  }
+
+  :root:not([data-theme="light"]) .heatmap-year-cell.level-7 {
+    background: #9b3b22;
+  }
+
+  :root:not([data-theme="light"]) .heatmap-year-cell.level-8 {
     background: #7a2626;
   }
 

@@ -84,6 +84,15 @@ export function buildSnapshotIndex({
   const cleanSnapshots: SnapshotRecord[] = [];
   const byAccountId = new Map<string, SnapshotRecord[]>();
   const tokenTotalsByAccount = new Map<string, { tokens: number; lastTokens: number }>();
+  const rankingState = new Map<
+    string,
+    {
+      tokens: number;
+      lastTokens: number;
+      latestTimestamp: number;
+      hasTotalTokens: boolean;
+    }
+  >();
   const minuteBuckets = new Map<string, SnapshotBucketEntry>();
   const hourBuckets = new Map<string, SnapshotBucketEntry>();
   const dayBuckets = new Map<string, SnapshotBucketEntry>();
@@ -114,13 +123,33 @@ export function buildSnapshotIndex({
     groupedSnapshots.push(cleanRecord);
     byAccountId.set(matchedAccount.id, groupedSnapshots);
 
-    const rankingTokens = cleanRecord.lastTokens ?? 0;
-    const rankingBucket = tokenTotalsByAccount.get(matchedAccount.id) ?? { tokens: 0, lastTokens: 0 };
-    rankingBucket.tokens += rankingTokens;
-    rankingBucket.lastTokens = cleanRecord.lastTokens ?? rankingBucket.lastTokens;
-    tokenTotalsByAccount.set(matchedAccount.id, rankingBucket);
-
     const timestamp = recordTime(cleanRecord);
+    const rankingTokens = cleanRecord.lastTokens ?? 0;
+    const rankingBucket = rankingState.get(matchedAccount.id) ?? {
+      tokens: 0,
+      lastTokens: 0,
+      latestTimestamp: Number.NEGATIVE_INFINITY,
+      hasTotalTokens: false,
+    };
+
+    if (typeof cleanRecord.totalTokens === "number" && cleanRecord.totalTokens > 0) {
+      rankingBucket.tokens = Math.max(rankingBucket.tokens, cleanRecord.totalTokens);
+      rankingBucket.hasTotalTokens = true;
+    } else if (!rankingBucket.hasTotalTokens) {
+      rankingBucket.tokens += rankingTokens;
+    }
+
+    if (typeof timestamp === "number" && !Number.isNaN(timestamp)) {
+      if (timestamp >= rankingBucket.latestTimestamp) {
+        rankingBucket.latestTimestamp = timestamp;
+        rankingBucket.lastTokens = cleanRecord.lastTokens ?? rankingBucket.lastTokens;
+      }
+    } else if (rankingBucket.latestTimestamp === Number.NEGATIVE_INFINITY) {
+      rankingBucket.lastTokens = cleanRecord.lastTokens ?? rankingBucket.lastTokens;
+    }
+
+    rankingState.set(matchedAccount.id, rankingBucket);
+
     if (typeof timestamp !== "number" || Number.isNaN(timestamp)) {
       continue;
     }
@@ -135,6 +164,12 @@ export function buildSnapshotIndex({
   for (const groupedSnapshots of byAccountId.values()) {
     groupedSnapshots.sort((left, right) => (recordTime(right) ?? 0) - (recordTime(left) ?? 0));
   }
+  rankingState.forEach((value, accountId) => {
+    tokenTotalsByAccount.set(accountId, {
+      tokens: value.tokens,
+      lastTokens: value.lastTokens,
+    });
+  });
 
   return {
     cleanSnapshots,
@@ -159,14 +194,17 @@ export function buildSnapshotIndexSignature(
   normalizeRecord: (record: SnapshotRecord) => SnapshotRecord,
   recordTime: (record: SnapshotRecord) => number | undefined,
 ) {
+  const formatVersion = "v2";
   const source = snapshots
     .map((raw) => {
       const record = normalizeRecord(raw);
       return [
+        formatVersion,
         record.accountId,
         record.email,
         record.subscriptionActiveUntilMs ?? record.subscriptionActiveUntil ?? "",
         recordTime(record) ?? "",
+        record.totalTokens ?? "",
         record.lastTokens ?? "",
       ].join("|");
     })

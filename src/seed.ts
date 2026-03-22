@@ -28,6 +28,7 @@ export const dashboardSeed: DashboardState = {
     analyticsRange: "week",
     analyticsChartMode: "line",
     heatmapScope: "month",
+    heatmapThresholdMode: "auto",
   },
   accounts: [
     {

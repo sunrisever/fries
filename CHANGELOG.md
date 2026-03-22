@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 0.4.5-beta
+
+- Added a settings-level toggle for heatmap threshold mode, so users can switch between adaptive auto thresholds and stable fixed thresholds.
+- Improved heatmap legends with an explicit current-mode label to make fixed vs auto scaling obvious at a glance.
+- Refreshed the latest local analytics/UI fixes and prepared a new beta release after the threshold-mode rollout.
+
 ## 0.4.4-beta
 
 - Fixed the dual-chart token analytics panel so the lower delta chart uses signed deltas, keeps zero as the baseline, and respects locale-specific rise/fall colors.

@@ -4,6 +4,7 @@ import type {
   DataPaths,
   LocaleMode,
   SelfCheckReport,
+  HeatmapThresholdMode,
   ThemeMode,
   ThemePreset,
   VisualEffectMode,
@@ -199,6 +200,23 @@ export default function SettingsPage({
                   {uiText(`${days} 天`, `${days} days`)}
                 </option>
               ))}
+            </select>
+          </label>
+
+          <label className="settings-option-card">
+            <span className="settings-option-title">{uiText("热力图阈值", "Heatmap thresholds")}</span>
+            <small>
+              {uiText(
+                "自动阈值会按历史日消耗分布重新标定；固定阈值便于跨时间比较。",
+                "Auto thresholds adapt to historical daily usage; fixed thresholds are better for long-term comparison.",
+              )}
+            </small>
+            <select
+              value={settings.heatmapThresholdMode}
+              onChange={(event) => updateSettings({ heatmapThresholdMode: event.target.value as HeatmapThresholdMode })}
+            >
+              <option value="auto">{uiText("自动阈值", "Auto thresholds")}</option>
+              <option value="fixed">{uiText("固定阈值", "Fixed thresholds")}</option>
             </select>
           </label>
         </div>
