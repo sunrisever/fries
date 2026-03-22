@@ -108,7 +108,8 @@ Current packaged artifacts:
 - Windows installer: `Fries-Setup-<version>-x64.exe`
 - Windows portable: `Fries-Portable-<version>-x64.exe`
 - Windows unpacked dir: `release/win-unpacked/`
-- macOS zip / dmg: `Fries-<version>-arm64.zip` / `Fries-<version>-arm64.dmg`
+- macOS Apple Silicon: `Fries-<version>-arm64.zip` / `Fries-<version>-arm64.dmg`
+- macOS Intel: `Fries-<version>-x64.zip` / `Fries-<version>-x64.dmg`
 - Linux: `Fries-<version>-x86_64.AppImage` / `Fries-<version>-amd64.deb` / `Fries-<version>-x86_64.rpm`
 
 ## Which Download Should I Choose?
@@ -116,6 +117,7 @@ Current packaged artifacts:
 - Windows desktop users: download `Fries-Setup-<version>-x64.exe`
 - Windows users who do not want installation: download `Fries-Portable-<version>-x64.exe`
 - macOS Apple Silicon users: download `Fries-<version>-arm64.dmg` first, or `Fries-<version>-arm64.zip` if you prefer archive form
+- macOS Intel users: download `Fries-<version>-x64.dmg` first, or `Fries-<version>-x64.zip` if you prefer archive form
 - Linux desktop users: prefer `Fries-<version>-x86_64.AppImage`; choose `deb` for Debian/Ubuntu-based systems and `rpm` for Fedora/RHEL-based systems
 - `win-unpacked/` is mainly for local debugging and advanced users; most users should ignore it
 
@@ -137,7 +139,7 @@ Multi-platform note:
 
 - Windows ships as installer, portable, and unpacked directory.
 - Linux ships as `AppImage`, `deb`, and `rpm`.
-- macOS currently ships in CI as **unsigned beta** `dmg` / `zip` artifacts.
+- macOS currently ships in CI as **unsigned beta** `dmg` / `zip` artifacts for both Apple Silicon and Intel.
 - When Apple signing secrets are configured, the workflow is prepared to sign and notarize builds automatically.
 - Until those Apple credentials are available, macOS artifacts should be treated as preview/beta downloads rather than polished end-user signed releases.
 
@@ -145,10 +147,10 @@ For signing/notarization setup details, see `docs/publishing/MACOS_SIGNING.md`.
 
 ## Release Notes
 
-- Current app version: `0.4.9-beta`
+- Current app version: `0.4.10-beta`
 - Product name: `Fries / 薯条`
-- Default Windows installer artifact: `Fries-Setup-0.4.9-beta-x64.exe`
-- Default Windows portable artifact: `Fries-Portable-0.4.9-beta-x64.exe`
+- Default Windows installer artifact: `Fries-Setup-0.4.10-beta-x64.exe`
+- Default Windows portable artifact: `Fries-Portable-0.4.10-beta-x64.exe`
 
 ## Open-Source Publishing Notes
 

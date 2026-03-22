@@ -77,7 +77,7 @@ jobs:
               npm run ${{ matrix.pack_script }}
             else
               npm run build
-              CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --publish never --mac zip dmg --config.mac.identity=null
+              CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --publish never --mac zip dmg --arm64 --x64 --config.mac.identity=null
             fi
           else
             npm run ${{ matrix.pack_script }}
@@ -146,8 +146,6 @@ jobs:
           patterns=(
             "release-assets/Fries-Setup-*.exe"
             "release-assets/Fries-Portable-*.exe"
-            "release-assets/latest.yml"
-            "release-assets/latest-mac.yml"
             "release-assets/Fries-*.zip"
             "release-assets/Fries-*.dmg"
             "release-assets/Fries-*.AppImage"

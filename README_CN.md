@@ -108,7 +108,8 @@ npm run release:beta
 - Windows 安装包：`Fries-Setup-<version>-x64.exe`
 - Windows 便携版：`Fries-Portable-<version>-x64.exe`
 - Windows 免安装运行目录：`release/win-unpacked/`
-- macOS zip / dmg：`Fries-<version>-arm64.zip` / `Fries-<version>-arm64.dmg`
+- macOS Apple Silicon：`Fries-<version>-arm64.zip` / `Fries-<version>-arm64.dmg`
+- macOS Intel：`Fries-<version>-x64.zip` / `Fries-<version>-x64.dmg`
 - Linux：`Fries-<version>-x86_64.AppImage` / `Fries-<version>-amd64.deb` / `Fries-<version>-x86_64.rpm`
 
 ## 小白下载指南
@@ -116,6 +117,7 @@ npm run release:beta
 - 普通 Windows 用户：优先下载 `Fries-Setup-<version>-x64.exe`
 - 不想安装、想随手解压就跑的 Windows 用户：下载 `Fries-Portable-<version>-x64.exe`
 - Apple Silicon 的 macOS 用户：优先下载 `Fries-<version>-arm64.dmg`，如果想要压缩包就下载 `Fries-<version>-arm64.zip`
+- Intel 芯片的 macOS 用户：优先下载 `Fries-<version>-x64.dmg`，如果想要压缩包就下载 `Fries-<version>-x64.zip`
 - Linux 桌面用户：优先下载 `Fries-<version>-x86_64.AppImage`；Debian/Ubuntu 系建议下 `deb`，Fedora/RHEL 系建议下 `rpm`
 - `win-unpacked/` 更偏向本地调试和高级用户，普通用户一般不用下载它
 
@@ -137,7 +139,7 @@ npm run release:beta
 
 - Windows 提供安装包、便携版和免安装目录。
 - Linux 提供 `AppImage`、`deb` 和 `rpm`。
-- macOS 当前通过 CI 提供的是 **未签名 beta** `dmg / zip`。
+- macOS 当前通过 CI 提供的是 **未签名 beta** `dmg / zip`，同时覆盖 Apple Silicon 和 Intel。
 - 如果后续配置了 Apple 签名 secrets，workflow 已经预留自动签名与 notarization。
 - 在 Apple 凭据尚未配置之前，macOS 产物应理解为预览 / beta 下载，而不是面向普通用户的正式签名版。
 
@@ -146,10 +148,10 @@ npm run release:beta
 
 ## 当前版本
 
-- 当前版本号：`0.4.9-beta`
+- 当前版本号：`0.4.10-beta`
 - 产品名：`Fries / 薯条`
-- Windows 安装包文件名：`Fries-Setup-0.4.9-beta-x64.exe`
-- Windows 便携版文件名：`Fries-Portable-0.4.9-beta-x64.exe`
+- Windows 安装包文件名：`Fries-Setup-0.4.10-beta-x64.exe`
+- Windows 便携版文件名：`Fries-Portable-0.4.10-beta-x64.exe`
 
 ## 开源发布建议
 

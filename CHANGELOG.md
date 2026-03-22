@@ -20,6 +20,12 @@
 - Kept the Linux PNG icon fix and release-asset collection fix from the previous beta, then reran the multi-platform release on a clean tag.
 - Continued to align release docs and artifact names with the new beta version.
 
+## 0.4.10-beta
+
+- Added macOS Intel (`x64`) packaging alongside Apple Silicon (`arm64`) so the public release page is closer to a full multi-platform archive.
+- Trimmed public GitHub Release assets by omitting updater metadata files (`latest.yml` / `latest-mac.yml`) from the visible download list.
+- Kept Windows and Linux direct-download assets while expanding macOS coverage for both common desktop architectures.
+
 ## 0.4.6-beta
 
 - Added Linux release targets to the official GitHub Release matrix, including `AppImage`, `deb`, and `rpm` assets.
