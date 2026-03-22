@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 0.4.7-beta
+
+- Published a clean multi-platform beta after the earlier stale-tag release mismatch, so release assets can line up with the real version number again.
+- Kept Linux in the official release matrix with `AppImage`, `deb`, and `rpm` targets alongside Windows and macOS artifacts.
+- Carried forward the latest heatmap threshold-mode work and documentation alignment into a fresh release tag.
+
 ## 0.4.6-beta
 
 - Added Linux release targets to the official GitHub Release matrix, including `AppImage`, `deb`, and `rpm` assets.

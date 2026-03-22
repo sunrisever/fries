@@ -145,10 +145,10 @@ For signing/notarization setup details, see `docs/publishing/MACOS_SIGNING.md`.
 
 ## Release Notes
 
-- Current app version: `0.4.6-beta`
+- Current app version: `0.4.7-beta`
 - Product name: `Fries / 薯条`
-- Default Windows installer artifact: `Fries-Setup-0.4.6-beta-x64.exe`
-- Default Windows portable artifact: `Fries-Portable-0.4.6-beta-x64.exe`
+- Default Windows installer artifact: `Fries-Setup-0.4.7-beta-x64.exe`
+- Default Windows portable artifact: `Fries-Portable-0.4.7-beta-x64.exe`
 
 ## Open-Source Publishing Notes
 
