@@ -8,6 +8,12 @@
 - Kept Linux in the official release matrix with `AppImage`, `deb`, and `rpm` targets alongside Windows and macOS artifacts.
 - Carried forward the latest heatmap threshold-mode work and documentation alignment into a fresh release tag.
 
+## 0.4.8-beta
+
+- Fixed the Linux packaging path so electron-builder uses an explicit PNG icon instead of falling back to a failing ICNS conversion step.
+- Added Linux AppImage / deb / rpm files to the final GitHub Release asset collection step, so the public release page can expose direct-download Linux assets.
+- Prepared a fresh multi-platform beta after the earlier Linux job blocked the final publish step for Windows and macOS as well.
+
 ## 0.4.6-beta
 
 - Added Linux release targets to the official GitHub Release matrix, including `AppImage`, `deb`, and `rpm` assets.

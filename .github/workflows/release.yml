@@ -150,6 +150,9 @@ jobs:
             "release-assets/latest-mac.yml"
             "release-assets/Fries-*.zip"
             "release-assets/Fries-*.dmg"
+            "release-assets/Fries-*.AppImage"
+            "release-assets/Fries-*.deb"
+            "release-assets/Fries-*.rpm"
           )
           for pattern in "${patterns[@]}"; do
             for file in $pattern; do

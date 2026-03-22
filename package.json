@@ -1,7 +1,7 @@
 {
   "name": "fries",
   "private": true,
-  "version": "0.4.7-beta",
+  "version": "0.4.8-beta",
   "description": "薯条 | Fries",
   "author": "sunrisever",
   "license": "MIT",
@@ -106,6 +106,7 @@
     },
     "linux": {
       "artifactName": "Fries-${version}-${arch}.${ext}",
+      "icon": "build/icon.png",
       "category": "Utility",
       "target": [
         "AppImage",
