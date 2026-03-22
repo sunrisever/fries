@@ -1,7 +1,7 @@
 {
   "name": "fries",
   "private": true,
-  "version": "0.4.5-beta",
+  "version": "0.4.6-beta",
   "description": "薯条 | Fries",
   "author": "sunrisever",
   "license": "MIT",
@@ -33,11 +33,13 @@
     "pack:portable": "npm run build && node scripts/run-electron-builder.cjs --win portable",
     "pack:installer": "npm run build && node scripts/run-electron-builder.cjs --win nsis",
     "pack:mac": "npm run build && node scripts/run-electron-builder.cjs --mac zip dmg",
+    "pack:linux": "npm run build && node scripts/run-electron-builder.cjs --linux AppImage deb rpm",
     "pack:release": "npm run build && node scripts/run-electron-builder.cjs --win nsis portable",
     "pack:ci:dir": "npm run build && node scripts/run-electron-builder.cjs --output release --win dir",
     "pack:ci:portable": "npm run build && node scripts/run-electron-builder.cjs --output release --win portable",
     "pack:ci:installer": "npm run build && node scripts/run-electron-builder.cjs --output release --win nsis",
     "pack:ci:mac": "npm run build && node scripts/run-electron-builder.cjs --output release --mac zip dmg",
+    "pack:ci:linux": "npm run build && node scripts/run-electron-builder.cjs --output release --linux AppImage deb rpm",
     "pack:ci:release": "npm run build && node scripts/run-electron-builder.cjs --output release --win nsis portable",
     "release:beta": "npm run check && node scripts/run-electron-builder.cjs --win nsis portable",
     "dist": "npm run pack:release"
@@ -100,6 +102,15 @@
       "target": [
         "zip",
         "dmg"
+      ]
+    },
+    "linux": {
+      "artifactName": "Fries-${version}-${arch}.${ext}",
+      "category": "Utility",
+      "target": [
+        "AppImage",
+        "deb",
+        "rpm"
       ]
     }
   },

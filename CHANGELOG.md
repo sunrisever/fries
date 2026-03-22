@@ -2,6 +2,12 @@
 
 # Changelog
 
+## 0.4.6-beta
+
+- Added Linux release targets to the official GitHub Release matrix, including `AppImage`, `deb`, and `rpm` assets.
+- Expanded packaging docs so users can now choose Windows, macOS, or Linux downloads directly from the release page.
+- Prepared the next beta release around a fuller multi-platform assets page, closer to a traditional desktop app release archive.
+
 ## 0.4.5-beta
 
 - Added a settings-level toggle for heatmap threshold mode, so users can switch between adaptive auto thresholds and stable fixed thresholds.

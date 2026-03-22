@@ -99,6 +99,7 @@ npm run pack:dir
 npm run pack:installer
 npm run pack:portable
 npm run pack:mac
+npm run pack:linux
 npm run release:beta
 ```
 
@@ -108,12 +109,14 @@ Current packaged artifacts:
 - Windows portable: `Fries-Portable-<version>-x64.exe`
 - Windows unpacked dir: `release/win-unpacked/`
 - macOS zip / dmg: `Fries-<version>-arm64.zip` / `Fries-<version>-arm64.dmg`
+- Linux: `Fries-<version>-x86_64.AppImage` / `Fries-<version>-amd64.deb` / `Fries-<version>-x86_64.rpm`
 
 ## Which Download Should I Choose?
 
 - Windows desktop users: download `Fries-Setup-<version>-x64.exe`
 - Windows users who do not want installation: download `Fries-Portable-<version>-x64.exe`
 - macOS Apple Silicon users: download `Fries-<version>-arm64.dmg` first, or `Fries-<version>-arm64.zip` if you prefer archive form
+- Linux desktop users: prefer `Fries-<version>-x86_64.AppImage`; choose `deb` for Debian/Ubuntu-based systems and `rpm` for Fedora/RHEL-based systems
 - `win-unpacked/` is mainly for local debugging and advanced users; most users should ignore it
 
 If a release has already been uploaded to GitHub Releases, local copies under `release/` are only for local testing and can be removed to save disk space.
@@ -127,32 +130,32 @@ Local packaging output:
 Release channels:
 
 - Local packaging on Windows still uses `--publish never`, so running scripts locally never uploads anything by accident.
-- GitHub Actions now builds a Windows + macOS release matrix on tags and uploads assets to GitHub Releases.
+- GitHub Actions now builds a Windows + Linux + macOS release matrix on tags and uploads assets to GitHub Releases.
 - Workflow artifacts also keep per-platform packages available even before a formal GitHub Release is downloaded.
 
 Multi-platform note:
 
 - Windows ships as installer, portable, and unpacked directory.
+- Linux ships as `AppImage`, `deb`, and `rpm`.
 - macOS currently ships in CI as **unsigned beta** `dmg` / `zip` artifacts.
 - When Apple signing secrets are configured, the workflow is prepared to sign and notarize builds automatically.
 - Until those Apple credentials are available, macOS artifacts should be treated as preview/beta downloads rather than polished end-user signed releases.
-- Linux is intentionally not an official release target for now.
 
 For signing/notarization setup details, see `docs/publishing/MACOS_SIGNING.md`.
 
 ## Release Notes
 
-- Current app version: `0.4.5-beta`
+- Current app version: `0.4.6-beta`
 - Product name: `Fries / 薯条`
-- Default Windows installer artifact: `Fries-Setup-0.4.5-beta-x64.exe`
-- Default Windows portable artifact: `Fries-Portable-0.4.5-beta-x64.exe`
+- Default Windows installer artifact: `Fries-Setup-0.4.6-beta-x64.exe`
+- Default Windows portable artifact: `Fries-Portable-0.4.6-beta-x64.exe`
 
 ## Open-Source Publishing Notes
 
 - License: MIT
 - Suggested repository: `sunrisever/fries`
 - GitHub Actions CI: `.github/workflows/ci.yml`
-- GitHub Actions release matrix (Windows + macOS): `.github/workflows/release.yml`
+- GitHub Actions release matrix (Windows + Linux + macOS): `.github/workflows/release.yml`
 - Maintainer release docs: `docs/publishing/`
 - macOS signing / notarization prep: `docs/publishing/MACOS_SIGNING.md`
 - Current macOS channel: unsigned beta only

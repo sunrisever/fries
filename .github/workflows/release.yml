@@ -25,6 +25,9 @@ jobs:
           - os: windows-latest
             artifact_name: windows
             pack_script: pack:ci:release
+          - os: ubuntu-latest
+            artifact_name: linux
+            pack_script: pack:ci:linux
           - os: macos-latest
             artifact_name: macos
             pack_script: pack:ci:mac
@@ -90,6 +93,12 @@ jobs:
               "release/Fries-*.zip"
               "release/Fries-*.dmg"
               "release/latest-mac.yml"
+            )
+          elif [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+            patterns=(
+              "release/Fries-*.AppImage"
+              "release/Fries-*.deb"
+              "release/Fries-*.rpm"
             )
           else
             patterns=(

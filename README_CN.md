@@ -99,6 +99,7 @@ npm run pack:dir
 npm run pack:installer
 npm run pack:portable
 npm run pack:mac
+npm run pack:linux
 npm run release:beta
 ```
 
@@ -108,12 +109,14 @@ npm run release:beta
 - Windows 便携版：`Fries-Portable-<version>-x64.exe`
 - Windows 免安装运行目录：`release/win-unpacked/`
 - macOS zip / dmg：`Fries-<version>-arm64.zip` / `Fries-<version>-arm64.dmg`
+- Linux：`Fries-<version>-x86_64.AppImage` / `Fries-<version>-amd64.deb` / `Fries-<version>-x86_64.rpm`
 
 ## 小白下载指南
 
 - 普通 Windows 用户：优先下载 `Fries-Setup-<version>-x64.exe`
 - 不想安装、想随手解压就跑的 Windows 用户：下载 `Fries-Portable-<version>-x64.exe`
 - Apple Silicon 的 macOS 用户：优先下载 `Fries-<version>-arm64.dmg`，如果想要压缩包就下载 `Fries-<version>-arm64.zip`
+- Linux 桌面用户：优先下载 `Fries-<version>-x86_64.AppImage`；Debian/Ubuntu 系建议下 `deb`，Fedora/RHEL 系建议下 `rpm`
 - `win-unpacked/` 更偏向本地调试和高级用户，普通用户一般不用下载它
 
 如果某个版本已经完整上传到了 GitHub Releases，那么你本地 `release/` 里的同版本产物就只是本地调试副本，可以按需删除来节约空间。
@@ -127,33 +130,33 @@ npm run release:beta
 发布渠道现在分成三层：
 
 - 本地 Windows 打包脚本仍然使用 `--publish never`，所以本机执行时不会误上传。
-- GitHub Actions 会在 tag 上跑 `Windows + macOS` release matrix，并把产物上传到 GitHub Releases。
+- GitHub Actions 会在 tag 上跑 `Windows + Linux + macOS` release matrix，并把产物上传到 GitHub Releases。
 - GitHub Actions 自己的 artifacts 也会保留各平台包，方便先验收再正式下载。
 
 多平台说明：
 
 - Windows 提供安装包、便携版和免安装目录。
+- Linux 提供 `AppImage`、`deb` 和 `rpm`。
 - macOS 当前通过 CI 提供的是 **未签名 beta** `dmg / zip`。
 - 如果后续配置了 Apple 签名 secrets，workflow 已经预留自动签名与 notarization。
 - 在 Apple 凭据尚未配置之前，macOS 产物应理解为预览 / beta 下载，而不是面向普通用户的正式签名版。
-- Linux 这轮先不作为正式发布目标。
 
 签名 / notarization 的预留说明见：`docs/publishing/MACOS_SIGNING.md`  
 中文版配置说明见：`docs/publishing/MACOS_SIGNING_CN.md`
 
 ## 当前版本
 
-- 当前版本号：`0.4.5-beta`
+- 当前版本号：`0.4.6-beta`
 - 产品名：`Fries / 薯条`
-- Windows 安装包文件名：`Fries-Setup-0.4.5-beta-x64.exe`
-- Windows 便携版文件名：`Fries-Portable-0.4.5-beta-x64.exe`
+- Windows 安装包文件名：`Fries-Setup-0.4.6-beta-x64.exe`
+- Windows 便携版文件名：`Fries-Portable-0.4.6-beta-x64.exe`
 
 ## 开源发布建议
 
 - 许可证：MIT
 - 建议仓库名：`sunrisever/fries`
 - GitHub Actions CI：`.github/workflows/ci.yml`
-- GitHub Actions 发布矩阵（Windows + macOS）：`.github/workflows/release.yml`
+- GitHub Actions 发布矩阵（Windows + Linux + macOS）：`.github/workflows/release.yml`
 - 维护者发布文档：`docs/publishing/`
 - macOS 签名 / notarization 预留：`docs/publishing/MACOS_SIGNING.md`
 - 当前 macOS 渠道：未签名 beta
