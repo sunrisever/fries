@@ -46,7 +46,7 @@ const TimelinePage = lazy(() => import("./pages/TimelinePage"));
 
 const STORAGE_KEY = "ai-account-console.dashboard.v1";
 const SIGNATURE_PROMPT_COOLDOWN_KEY = "ai-account-console.signature-prompt-cooldowns.v1";
-const APP_VERSION = "0.4.8-beta";
+const APP_VERSION = "0.4.9-beta";
 const APP_CHINESE_NAME = "薯条";
 const DATA_YEAR_MIN = 2026;
 const DATA_YEAR_MAX = 2036;

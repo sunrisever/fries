@@ -14,6 +14,12 @@
 - Added Linux AppImage / deb / rpm files to the final GitHub Release asset collection step, so the public release page can expose direct-download Linux assets.
 - Prepared a fresh multi-platform beta after the earlier Linux job blocked the final publish step for Windows and macOS as well.
 
+## 0.4.9-beta
+
+- Added explicit maintainer metadata for Linux package targets so `deb` / `rpm` packaging can complete in CI.
+- Kept the Linux PNG icon fix and release-asset collection fix from the previous beta, then reran the multi-platform release on a clean tag.
+- Continued to align release docs and artifact names with the new beta version.
+
 ## 0.4.6-beta
 
 - Added Linux release targets to the official GitHub Release matrix, including `AppImage`, `deb`, and `rpm` assets.

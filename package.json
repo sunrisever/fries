@@ -1,9 +1,12 @@
 {
   "name": "fries",
   "private": true,
-  "version": "0.4.8-beta",
+  "version": "0.4.9-beta",
   "description": "薯条 | Fries",
-  "author": "sunrisever",
+  "author": {
+    "name": "sunrisever",
+    "email": "97835394+sunrisever@users.noreply.github.com"
+  },
   "license": "MIT",
   "homepage": "https://github.com/sunrisever/fries",
   "repository": {
@@ -107,6 +110,7 @@
     "linux": {
       "artifactName": "Fries-${version}-${arch}.${ext}",
       "icon": "build/icon.png",
+      "maintainer": "sunrisever <97835394+sunrisever@users.noreply.github.com>",
       "category": "Utility",
       "target": [
         "AppImage",
